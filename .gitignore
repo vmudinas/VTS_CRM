@@ -49,3 +49,6 @@ cypress/screenshots/
 *.deb
 *.bin
 bin/
+# Build and intermediate directories
+[oO]bj/
+[dD]ebug/

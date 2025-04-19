@@ -6,8 +6,7 @@ import { productService } from '../services';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import ProductCard from '../components/ProductCard';
-import CategoryTab from '../components/CategoryTab';
+// Using local ProductCard & CategoryTab definitions
 
 // Product Card Component
 export const ProductCard: React.FC<{   

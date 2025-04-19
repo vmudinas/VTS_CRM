@@ -6,7 +6,7 @@ services:
     user: root
     # container_name removed to let Compose manage names and avoid conflicts
     environment:
-      SA_PASSWORD: "Kla1peda17!"
+      SA_PASSWORD: "${SA_PASSWORD}"
       ACCEPT_EULA: "Y"
       MSSQL_PID: "Developer"
     # Expose SQL Server port on the internal Docker network only to avoid host port conflicts
@@ -35,7 +35,7 @@ services:
       DB_PORT: "1433"
       DB_NAME: FoldsAndFlavors
       DB_USER: sa
-      DB_PASSWORD: "Kla1peda17!"
+      DB_PASSWORD: "${DB_PASSWORD}"
       JWT_SECRET: "your-secret-key"
       ASPNETCORE_URLS: http://+:4000
     ports:

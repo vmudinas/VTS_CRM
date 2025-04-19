@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using FoldsAndFlavors.API.Utils;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -33,7 +34,7 @@ namespace FoldsAndFlavors.API.Controllers
             }
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
-            if (user == null || user.Password != request.Password)
+            if (user == null || !PasswordHasher.Verify(user.Password, request.Password))
             {
                 return Unauthorized(new { message = "Invalid credentials" });
             }

@@ -1,7 +1,122 @@
 
-# Getting Started with Create React App
+# Folds & Flavors (My Store)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Full-stack web application featuring:
+  - React frontend (TypeScript)
+  - ASP.NET Core 9 backend API with Entity Framework Core
+  - SQL Server database (via Docker)
+  - Fully containerized via Docker Compose
+
+## Table of Contents
+  1. [Overview](#overview)
+  2. [Prerequisites](#prerequisites)
+  3. [Directory Structure](#directory-structure)
+  4. [Backend (API)](#backend-api)
+     - [Configuration](#configuration)
+     - [Running Locally](#running-locally)
+     - [Tests](#tests)
+  5. [Frontend (UI)](#frontend-ui)
+     - [Running Locally](#running-locally-1)
+     - [Tests](#tests-1)
+  6. [Docker & Deployment](#docker--deployment)
+  7. [Environment Variables](#environment-variables)
+  8. [License](#license)
+
+## Overview
+`Folds & Flavors` is a sample online store application. It provides product listings, shopping cart, order management, and messaging endpoints. The application is split into:
+  - **Frontend**: SPA built with React and Tailwind CSS
+  - **Backend API**: ASP.NET Core Web API using EF Core for data access
+  - **Database**: SQL Server (Docker)
+
+## Prerequisites
+- [.NET 9 SDK](https://dotnet.microsoft.com/download)
+- [Node.js 18+](https://nodejs.org/)
+- [Docker & Docker Compose](https://docs.docker.com/compose/)
+
+## Directory Structure
+```
+./
+├─ server/            # ASP.NET Core Web API project
+│   ├─ Controllers/   # API controllers (Products, Orders, Messages, Auth)
+│   ├─ Data/          # EF Core DbContext & models
+│   ├─ IntegrationTests/  # API integration tests (xUnit)
+│   └─ Program.cs     # Entry point, service registration
+├─ src/               # React application
+│   ├─ pages/         # Page components (Home, Admin, Contact)
+│   ├─ services/      # API service wrappers (productService, etc.)
+│   └─ index.tsx      # React entry point
+├─ docker-compose.yml # DB + API services
+├─ Dockerfile         # Multi-stage build for UI + API
+└─ README.md          # This file
+```
+
+## Backend (API)
+The backend is implemented in `server/`:
+
+### Configuration
+- Uses EF Core with SQL Server. Default connection string reads:
+  - `DB_SERVER` (default: `db`)
+  - `DB_PORT` (default: `1433`)
+  - `DB_NAME`   (default: `FoldsAndFlavors`)
+  - `DB_USER`   (default: `sa`)
+  - `DB_PASSWORD` (default: `Kla1peda17!`)
+- Authentication/Authorization has been removed: all endpoints are open.
+
+### Running Locally
+```bash
+cd server
+dotnet run --urls "http://localhost:4000"
+```
+The API listens on port `4000` by default.
+
+### Tests
+Run unit and integration tests via xUnit:
+```bash
+cd server
+dotnet test
+```
+
+## Frontend (UI)
+The React SPA lives in `src/`.
+
+### Running Locally
+```bash
+npm install
+npm start
+```
+The UI will launch at http://localhost:3000 and proxy API calls to the backend.
+
+### Tests
+React unit tests (Jest):
+```bash
+npm test
+```
+
+## Docker & Deployment
+The entire app can be run via Docker Compose. First, copy `.env.example` to `.env` and customize your passwords.
+```bash
+cp .env.example .env
+docker-compose up --build -d
+```
+This brings up:
+- `db` service: SQL Server (port 1433)
+- `api` service: UI + API combined (port 4000)
+
+To rebuild only the API (includes UI build):
+```bash
+docker-compose build api
+docker-compose up -d api
+```
+
+## Environment Variables
+Copy `.env.example` to a `.env` file in the project root, then set your passwords:
+- `SA_PASSWORD` – Strong password for SQL Server (must satisfy complexity requirements).
+- `DB_PASSWORD` – Password the API uses to connect (you can reuse `SA_PASSWORD`).
+- JWT_SECRET (unused after auth removal)
+- ASPNETCORE_URLS (e.g. `http://+:4000`)
+
+## License
+MIT
 
 ## Available Scripts
 
