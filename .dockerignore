@@ -1,0 +1,12 @@
+node_modules
+build
+src/build
+server/bin
+server/obj
+**/bin
+**/obj
+*.log
+.env
+.vscode
+/.git
+Dockerfile*   

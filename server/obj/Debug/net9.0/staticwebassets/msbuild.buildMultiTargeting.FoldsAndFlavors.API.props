@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../build/FoldsAndFlavors.API.props" />
+</Project>

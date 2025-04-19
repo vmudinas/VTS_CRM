@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Folds & Flavors Store - Styling Showcase</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Base styles */
+    :root {
+      --primary-50: #f0f9ff;
+      --primary-100: #e0f2fe;
+      --primary-200: #bae6fd;
+      --primary-300: #7dd3fc;
+      --primary-400: #38bdf8;
+      --primary-500: #0ea5e9;
+      --primary-600: #0284c7;
+      --primary-700: #0369a1;
+      --primary-800: #075985;
+      --primary-900: #0c4a6e;
+      
+      --secondary-500: #14b8a6;
+      --secondary-600: #0d9488;
+      
+      --accent-500: #f59e0b;
+      --accent-600: #d97706;
+      
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      line-height: 1.5;
+      color: var(--gray-800);
+      background-color: var(--gray-100);
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+    
+    /* Header */
+    header {
+      background-color: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-600);
+      text-decoration: none;
+    }
+    
+    .logo svg {
+      width: 2rem;
+      height: 2rem;
+      margin-right: 0.5rem;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+    
+    .nav-links a {
+      color: var(--gray-700);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    
+    .nav-links a:hover {
+      color: var(--primary-600);
+    }
+    
+    .cart-link {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    
+    .cart-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background-color: var(--accent-500);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* Main content */
+    .main-content {
+      padding: 2rem 0;
+    }
+    
+    .showcase-section {
+      background-color: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .section-title {
+      font-size: 1.5rem;
+      color: var(--gray-800);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--primary-100);
+    }
+    
+    /* Product cards */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .product-card {
+      background-color: white;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .product-image {
+      position: relative;
+      height: 200px;
+      overflow: hidden;
+    }
+    
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+    
+    .product-card:hover .product-image img {
+      transform: scale(1.05);
+    }
+    
+    .product-badge {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: white;
+    }
+    
+    .badge-bestseller {
+      background-color: var(--accent-500);
+    }
+    
+    .badge-new {
+      background-color: var(--secondary-500);
+    }
+    
+    .badge-premium {
+      background-color: #9333ea;
+    }
+    
+    .product-info {
+      padding: 1rem;
+    }
+    
+    .product-name {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    
+    .product-description {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+      margin-bottom: 1rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      height: 2.5rem;
+    }
+    
+    .product-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .product-price {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--primary-600);
+    }
+    
+    .add-to-cart {
+      background-color: var(--primary-600);
+      color: white;
+      border: none;
+      border-radius: 0.375rem;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: background-color 0.2s;
+    }
+    
+    .add-to-cart:hover {
+      background-color: var(--primary-700);
+    }
+    
+    .add-to-cart svg {
+      width: 1rem;
+      height: 1rem;
+      margin-right: 0.25rem;
+    }
+    
+    /* Cart section */
+    .cart-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    
+    .cart-item-image {
+      width: 5rem;
+      height: 5rem;
+      border-radius: 0.375rem;
+      overflow: hidden;
+      margin-right: 1rem;
+    }
+    
+    .cart-item-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .cart-item-details {
+      flex-grow: 1;
+    }
+    
+    .cart-item-name {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    
+    .cart-item-price {
+      color: var(--primary-600);
+      font-weight: 600;
+    }
+    
+    .cart-item-quantity {
+      display: flex;
+      align-items: center;
+      margin-left: 1rem;
+    }
+    
+    .quantity-btn {
+      background-color: var(--gray-100);
+      border: none;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 0.25rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    
+    .quantity-value {
+      width: 2rem;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .cart-summary {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 2px solid var(--gray-200);
+    }
+    
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    
+    .checkout-btn {
+      background-color: var(--primary-600);
+      color: white;
+      border: none;
+      border-radius: 0.375rem;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s;
+    }
+    
+    .checkout-btn:hover {
+      background-color: var(--primary-700);
+    }
+    
+    .checkout-btn svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      margin-right: 0.5rem;
+    }
+    
+    /* Contact form */
+    .contact-form {
+      max-width: 32rem;
+      margin: 0 auto;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray-700);
+      margin-bottom: 0.5rem;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--gray-300);
+      border-radius: 0.375rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+    }
+    
+    .form-textarea {
+      min-height: 8rem;
+      resize: vertical;
+    }
+    
+    .form-submit {
+      background-color: var(--primary-600);
+      color: white;
+      border: none;
+      border-radius: 0.375rem;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      transition: background-color 0.2s;
+    }
+    
+    .form-submit:hover {
+      background-color: var(--primary-700);
+    }
+    
+    /* Footer */
+    footer {
+      background-color: var(--gray-800);
+      color: white;
+      padding: 3rem 0 1.5rem;
+    }
+    
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    
+    .footer-logo svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      margin-right: 0.5rem;
+    }
+    
+    .footer-description {
+      color: var(--gray-400);
+      margin-bottom: 1.5rem;
+    }
+    
+    .footer-heading {
+      font-size: 1.125rem;
+      margin-bottom: 1rem;
+    }
+    
+    .footer-links {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 0.5rem;
+    }
+    
+    .footer-links a {
+      color: var(--gray-400);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    
+    .footer-links a:hover {
+      color: white;
+    }
+    
+    .footer-contact-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+      color: var(--gray-400);
+    }
+    
+    .footer-contact-item svg {
+      width: 1rem;
+      height: 1rem;
+      margin-right: 0.5rem;
+      margin-top: 0.25rem;
+      flex-shrink: 0;
+    }
+    
+    .footer-bottom {
+      border-top: 1px solid var(--gray-700);
+      padding-top: 1.5rem;
+      text-align: center;
+      color: var(--gray-400);
+      font-size: 0.875rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .nav-links {
+        margin-top: 1rem;
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      }
+      
+      .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .cart-item-image {
+        margin-bottom: 1rem;
+      }
+      
+      .cart-item-quantity {
+        margin-left: 0;
+        margin-top: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="#" class="logo">
+          <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path>
+          </svg>
+          Folds & Flavors
+        </a>
+        <div class="nav-links">
+          <a href="#products">Products</a>
+          <a href="#cart">Cart</a>
+          <a href="#contact">Contact</a>
+          <a href="#" class="cart-link">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+            </svg>
+            <span class="cart-badge">3</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+  
+  <main class="main-content">
+    <div class="container">
+      <section class="showcase-section">
+        <h1 style="text-align: center; font-size: 2rem; margin-bottom: 2rem;">
+          Folds & Flavors Store - Styling Showcase
+        </h1>
+        <p style="text-align: center; max-width: 800px; margin: 0 auto 2rem;">
+          This page showcases the improved styling for the Folds & Flavors store. The design features a consistent color scheme, enhanced product cards, improved navigation, and a more polished overall look and feel.
+        </p>
+      </section>
+      
+      <section id="products" class="showcase-section">
+        <h2 class="section-title">Product Cards</h2>
+        <div class="products-grid">
+          <div class="product-card">
+            <div class="product-image">
+              <img src="/public/images/Shuriken.jpg" alt="Shuriken">
+              <div class="product-badge badge-bestseller">Bestseller</div>
+            </div>
+            <div class="product-info">
+              <h3 class="product-name">Shuriken</h3>
+              <p class="product-description">Classic throwing star design, perfect for beginners.</p>
+              <div class="product-footer">
+                <span class="product-price">$0.50</span>
+                <button class="add-to-cart">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                  </svg>
+                  Add
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="product-card">
+            <div class="product-image">
+              <img src="/public/images/Ddakji.jpg" alt="Ddakji">
+              <div class="product-badge" style="background-color: var(--primary-500);">Popular</div>
+            </div>
+            <div class="product-info">
+              <h3 class="product-name">Ddakji</h3>
+              <p class="product-description">Traditional Korean paper game, as seen in Squid Game.</p>
+              <div class="product-footer">
+                <span class="product-price">$1.00</span>
+                <button class="add-to-cart">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                  </svg>
+                  Add
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="product-card">
+            <div class="product-image">
+              <img src="/public/images/DoubleKunai.jpg" alt="Double Kunai">
+              <div class="product-badge badge-new">New</div>
+            </div>
+            <div class="product-info">
+              <h3 class="product-name">Double Kunai</h3>
+              <p class="product-description">Dual-blade design for the advanced folder.</p>
+              <div class="product-footer">
+                <span class="product-price">$2.50</span>
+                <button class="add-to-cart">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                  </svg>
+                  Add
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="product-card">
+            <div class="product-image">
+              <img src="/public/images/MegaKunai.jpg" alt="Mega Kunai">
+            </div>
+            <div class="product-info">
+              <h3 class="product-name">Mega Kunai</h3>
+              <p class="product-description">Larger version with impressive presence.</p>
+              <div class="product-footer">
+                <span class="product-price">$2.50</span>
+                <button class="add-to-cart">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                  </svg>
+                  Add
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <section id="cart" class="showcase-section">
+        <h2 class="section-title">Cart</h2>
+        <div class="cart-item">
+          <div class="cart-item-image">
+            <img src="/public/images/Shuriken.jpg" alt="Shuriken">
+          </div>
+          <div class="cart-item-details">
+            <h3 class="cart-item-name">Shuriken</h3>
+            <p class="cart-item-price">$0.50</p>
+          </div>
+          <div class="cart-item-quantity">
+            <button class="quantity-btn">-</button>
+            <span class="quantity-value">1</span>
+            <button class="quantity-btn">+</button>
+          </div>
+        </div>
+        
+        <div class="cart-item">
+          <div class="cart-item-image">
+            <img src="/public/images/Ddakji.jpg" alt="Ddakji">
+          </div>
+          <div class="cart-item-details">
+            <h3 class="cart-item-name">Ddakji</h3>
+            <p class="cart-item-price">$1.00</p>
+          </div>
+          <div class="cart-item-quantity">
+            <button class="quantity-btn">-</button>
+            <span class="quantity-value">2</span>
+            <button class="quantity-btn">+</button>
+          </div>
+        </div>
+        
+        <div class="cart-summary">
+          <div class="cart-total">
+            <span>Total:</span>
+            <span>$2.50</span>
+          </div>
+          <button class="checkout-btn">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Complete Order
+          </button>
+        </div>
+      </section>
+      
+      <section id="contact" class="showcase-section">
+        <h2 class="section-title">Contact Form</h2>
+        <form class="contact-form">
+          <div class="form-group">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" id="name" class="form-input" placeholder="Your name">
+          </div>
+          
+          <div class="form-group">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" class="form-input" placeholder="Your email">
+          </div>
+          
+          <div class="form-group">
+            <label for="subject" class="form-label">Subject</label>
+            <select id="subject" class="form-input">
+              <option value="">Select a subject</option>
+              <option value="product">Product Inquiry</option>
+              <option value="order">Order Status</option>
+              <option value="feedback">Feedback</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="message" class="form-label">Message</label>
+            <textarea id="message" class="form-input form-textarea" placeholder="Your message"></textarea>
+          </div>
+          
+          <button type="submit" class="form-submit">Send Message</button>
+        </form>
+      </section>
+    </div>
+  </main>
+  
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div>
+          <div class="footer-logo">
+            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path>
+            </svg>
+            Folds & Flavors
+          </div>
+          <p class="footer-description">
+            Handcrafted origami creations for all occasions. Quality paper products since 2025.
+          </p>
+        </div>
+        
+        <div>
+          <h3 class="footer-heading">Quick Links</h3>
+          <ul class="footer-links">
+            <li><a href="#products">Products</a></li>
+            <li><a href="#cart">Cart</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3 class="footer-heading">Contact</h3>
+          <div class="footer-contact-item">
+            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+            </svg>
+            <span>123 Paper St, Origami City</span>
+          </div>
+          <div class="footer-contact-item">
+            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+            </svg>
+            <span>info@foldsandflavors.com</span>
+          </div>
+          <div class="footer-contact-item">
+            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
+            </svg>
+            <span>(555) 123-4567</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2025 Folds & Flavors. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
