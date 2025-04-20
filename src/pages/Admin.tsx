@@ -68,6 +68,16 @@ const Admin: React.FC = () => {
   const [emailForm, setEmailForm] = useState<EmailFormState>({ to: '', subject: '', message: '' });
   // Removing unused orderStatusForm state
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  
+  // On mount, rehydrate auth token from localStorage
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      setToken(storedToken);
+      apiService.setToken(storedToken);
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   // Removing unused API_URL constant as it's not being used anywhere
 
@@ -81,6 +91,8 @@ const Admin: React.FC = () => {
       const data = await apiService.login(loginForm.username, loginForm.password);
       
       // Store the token
+      // Persist token in localStorage and state
+      localStorage.setItem('token', data.token);
       setToken(data.token);
       setIsLoggedIn(true);
     } catch (err: any) {
@@ -93,7 +105,9 @@ const Admin: React.FC = () => {
   
   // Handle logout
   const handleLogout = () => {
+    // Clear token and auth state
     apiService.logout();
+    localStorage.removeItem('token');
     setToken(null);
     setIsLoggedIn(false);
   };

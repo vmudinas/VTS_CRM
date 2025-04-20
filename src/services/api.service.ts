@@ -67,9 +67,10 @@ class ApiService {
    * @returns Promise with the response data
    */
   async get<T>(endpoint: string): Promise<T> {
+    // GET requests do not send a body, so omit Content-Type header
     const response = await fetch(`${API_URL}${endpoint}`, {
       method: 'GET',
-      headers: this.getHeaders()
+      headers: this.getHeaders(false)
     });
     
     if (!response.ok) {

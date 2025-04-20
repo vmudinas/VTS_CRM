@@ -49,7 +49,10 @@ namespace FoldsAndFlavors.API.Controllers
                 new Claim("isAdmin", user.IsAdmin.ToString())
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSecret));
+            // Derive a fixed-length signing key (256-bit) from the secret
+            using var _sha = System.Security.Cryptography.SHA256.Create();
+            var keyBytes = _sha.ComputeHash(Encoding.UTF8.GetBytes(_jwtSecret));
+            var key = new SymmetricSecurityKey(keyBytes);
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(

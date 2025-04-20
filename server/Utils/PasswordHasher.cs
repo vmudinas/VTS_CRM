@@ -24,7 +24,15 @@ namespace FoldsAndFlavors.API.Utils
             if (string.IsNullOrEmpty(storedHash) || string.IsNullOrEmpty(password))
                 return false;
             byte[] bytes;
-            try { bytes = Convert.FromBase64String(storedHash); } catch { return false; }
+            try
+            {
+                bytes = Convert.FromBase64String(storedHash);
+            }
+            catch (FormatException)
+            {
+                // Stored password is not in hashed format: fallback to plain-text comparison
+                return storedHash == password;
+            }
             if (bytes.Length != 1 + 16 + 32 || bytes[0] != 0x01)
                 return false;
             byte[] salt = new byte[16];

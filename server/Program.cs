@@ -9,20 +9,13 @@ var builder = WebApplication.CreateBuilder(args);
 // JWT secret (must be >256 bits if using fallback default)
 var defaultJwtSecret = "abcdefghijklmnopqrstuvwxyzABCDEFG"; // 33 chars, 264 bits
 var envJwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
-// Determine JWT secret (must be at least 128 bits / 16 bytes for HS256)
+// Determine JWT secret and derive a fixed-length key (256-bit) for HS256
 var jwtSecret = !string.IsNullOrWhiteSpace(envJwtSecret)
     ? envJwtSecret
     : defaultJwtSecret;
-// Validate that the secret is long enough for HS256
-var jwtSecretBytes = Encoding.UTF8.GetBytes(jwtSecret);
-const int minSecretBytes = 16; // 128 bits
-if (jwtSecretBytes.Length < minSecretBytes)
-{
-    throw new InvalidOperationException(
-        $"The JWT secret must be at least {minSecretBytes * 8} bits ({minSecretBytes} bytes), " +
-        $"but the provided secret is {jwtSecretBytes.Length * 8} bits."
-    );
-}
+// Derive signing key bytes by hashing the secret (SHA-256 produces 32 bytes)
+using var _sha = System.Security.Cryptography.SHA256.Create();
+var signingKeyBytes = _sha.ComputeHash(Encoding.UTF8.GetBytes(jwtSecret));
 
 // Database connection parameters
 var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "sa";
@@ -51,7 +44,8 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuer = false,
         ValidateAudience = false,
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+            // Use derived signing key bytes
+            IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes),
         ValidateLifetime = true,
     };
 });
