@@ -6,8 +6,23 @@ using FoldsAndFlavors.API.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// JWT secret
-var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "your-secret-key";
+// JWT secret (must be >256 bits if using fallback default)
+var defaultJwtSecret = "abcdefghijklmnopqrstuvwxyzABCDEFG"; // 33 chars, 264 bits
+var envJwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
+// Determine JWT secret (must be at least 128 bits / 16 bytes for HS256)
+var jwtSecret = !string.IsNullOrWhiteSpace(envJwtSecret)
+    ? envJwtSecret
+    : defaultJwtSecret;
+// Validate that the secret is long enough for HS256
+var jwtSecretBytes = Encoding.UTF8.GetBytes(jwtSecret);
+const int minSecretBytes = 16; // 128 bits
+if (jwtSecretBytes.Length < minSecretBytes)
+{
+    throw new InvalidOperationException(
+        $"The JWT secret must be at least {minSecretBytes * 8} bits ({minSecretBytes} bytes), " +
+        $"but the provided secret is {jwtSecretBytes.Length * 8} bits."
+    );
+}
 
 // Database connection parameters
 var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "sa";
@@ -67,9 +82,55 @@ using (var scope = app.Services.CreateScope())
     {
         context.Database.Migrate();
     }
+
+    // Seed default admin user if configured via environment variables
+    var adminUsername = Environment.GetEnvironmentVariable("ADMIN_USERNAME");
+    var adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
+    if (!string.IsNullOrEmpty(adminUsername) && !string.IsNullOrEmpty(adminPassword))
+    {
+        // Check if the admin user already exists
+        if (!context.Users.Any(u => u.Username == adminUsername))
+        {
+            // Create and add the admin user with hashed password
+            context.Users.Add(new FoldsAndFlavors.API.Data.Models.User
+            {
+                Username = adminUsername,
+                Password = FoldsAndFlavors.API.Utils.PasswordHasher.Hash(adminPassword),
+                IsAdmin = true
+            });
+            context.SaveChanges();
+        }
+    }
 }
 
 // Configure middleware
+// Global exception logging middleware: catch and log exceptions to database
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Exception ex)
+    {
+        var dbContext = context.RequestServices.GetRequiredService<FoldsAndFlavorsContext>();
+        var stackTrace = new System.Diagnostics.StackTrace(ex, true);
+        var frame = stackTrace.GetFrames()?.FirstOrDefault();
+        var fileName = frame?.GetFileName();
+        var methodName = frame?.GetMethod()?.Name;
+        var exceptionLog = new FoldsAndFlavors.API.Data.Models.ExceptionLog
+        {
+            FileName = fileName,
+            MethodName = methodName,
+            Message = ex.Message,
+            InnerMessage = ex.InnerException?.Message,
+            Timestamp = DateTime.UtcNow
+        };
+        dbContext.ExceptionLogs.Add(exceptionLog);
+        dbContext.SaveChanges();
+        throw;
+    }
+});
 // Enable Swagger middleware for API documentation
 app.UseSwagger();
 app.UseSwaggerUI(c =>

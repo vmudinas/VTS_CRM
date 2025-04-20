@@ -107,13 +107,23 @@ To rebuild only the API (includes UI build):
 docker-compose build api
 docker-compose up -d api
 ```
+  
+**Data Persistence**
+
+The SQL Server data is stored in a Docker named volume (`mssql-data`) defined in `docker-compose.yml`. Rebuilding or restarting the containers will not erase your data. To completely remove and reset the database (and lose all data), run:
+```bash
+docker-compose down -v
+docker volume rm mssql-data
+```
 
 ## Environment Variables
-Copy `.env.example` to a `.env` file in the project root, then set your passwords:
-- `SA_PASSWORD` – Strong password for SQL Server (must satisfy complexity requirements).
-- `DB_PASSWORD` – Password the API uses to connect (you can reuse `SA_PASSWORD`).
-- JWT_SECRET (unused after auth removal)
-- ASPNETCORE_URLS (e.g. `http://+:4000`)
+- Copy `.env.example` to a `.env` file in the project root, then set your passwords:
+  - `SA_PASSWORD` – Strong password for SQL Server (must satisfy complexity requirements).
+  - `DB_PASSWORD` – Password the API uses to connect (you can reuse `SA_PASSWORD`).
+  - `JWT_SECRET` – Secret key for signing JWT tokens.
+  - `ASPNETCORE_URLS` – URL(s) the API should listen on (e.g. `http://+:4000`).
+  - `ADMIN_USERNAME` – Default admin username to seed initial admin account (optional).
+  - `ADMIN_PASSWORD` – Default admin password to seed initial admin account (optional).
 
 ## License
 MIT

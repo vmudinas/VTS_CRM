@@ -13,6 +13,7 @@ namespace FoldsAndFlavors.API.Data
         public DbSet<Order> Orders { get; set; } = null!;
         public DbSet<OrderItem> OrderItems { get; set; } = null!;
         public DbSet<ContactMessage> ContactMessages { get; set; } = null!;
+        public DbSet<ExceptionLog> ExceptionLogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,6 +40,8 @@ namespace FoldsAndFlavors.API.Data
             modelBuilder.Entity<Order>().Property(o => o.Status).HasDefaultValue("pending");
 
             modelBuilder.Entity<ContactMessage>().Property(m => m.CreatedAt).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<ExceptionLog>().ToTable("ExceptionLogs");
+            modelBuilder.Entity<ExceptionLog>().Property(e => e.Timestamp).HasDefaultValueSql("GETDATE()");
         }
     }
 }

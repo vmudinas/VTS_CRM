@@ -20,9 +20,12 @@ namespace FoldsAndFlavors.API.Controllers
         public AuthController(FoldsAndFlavorsContext context)
         {
             _context = context;
-            // Use environment variable or default strong key for HmacSha256 (must be >256 bits)
-            _jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") 
-                         ?? "abcdefghijklmnopqrstuvwxyzABCDEFG"; // 33 chars, 264 bits
+            // JWT secret: use environment variable if set and non-empty, otherwise fallback to default (must be >256 bits)
+            var defaultSecret = "abcdefghijklmnopqrstuvwxyzABCDEFG"; // 33 chars, 264 bits
+            var envSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
+            _jwtSecret = !string.IsNullOrWhiteSpace(envSecret)
+                ? envSecret
+                : defaultSecret;
         }
 
         [HttpPost("login")]
