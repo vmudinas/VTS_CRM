@@ -1,24 +1,24 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using FoldsAndFlavors.API.Data;
-using FoldsAndFlavors.API.Data.Models;
+using FAI.API.Data;
+using FAI.API.Data.Models;
 
-namespace FoldsAndFlavors.API.Controllers
+namespace FAI.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class MessagesController : ControllerBase
     {
-        private readonly FoldsAndFlavorsContext _context;
+        private readonly FAIContext _context;
 
-        public MessagesController(FoldsAndFlavorsContext context)
+        public MessagesController(FAIContext context)
         {
             _context = context;
         }
 
         [HttpGet]
-        [Authorize(Policy = "Admin")]
+        [Authorize]
         public async Task<IActionResult> GetMessages()
         {
             var messages = await _context.ContactMessages.OrderByDescending(m => m.CreatedAt).ToListAsync();
@@ -26,7 +26,7 @@ namespace FoldsAndFlavors.API.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Policy = "Admin")]
+        [Authorize]
         public async Task<IActionResult> GetMessage(int id)
         {
             var message = await _context.ContactMessages.FindAsync(id);
@@ -61,7 +61,7 @@ namespace FoldsAndFlavors.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "Admin")]
+        [Authorize]
         public async Task<IActionResult> DeleteMessage(int id)
         {
             var message = await _context.ContactMessages.FindAsync(id);

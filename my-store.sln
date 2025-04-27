@@ -2,11 +2,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoldsAndFlavors.API", "server\FoldsAndFlavors.API.csproj", "{395B5BA6-7933-36C9-075A-352CC64939B3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FAI.API", "server\FAI.API.csproj", "{395B5BA6-7933-36C9-075A-352CC64939B3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{DAD03CFC-D5FA-AC94-41C7-9ABAB326F09E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoldsAndFlavors.IntegrationTests", "server\IntegrationTests\FoldsAndFlavors.IntegrationTests.csproj", "{C2279E4E-8F79-C333-9E7C-979415987CB1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FAI.IntegrationTests", "server\IntegrationTests\FAI.IntegrationTests.csproj", "{C2279E4E-8F79-C333-9E7C-979415987CB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

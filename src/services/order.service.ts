@@ -6,7 +6,7 @@
 import apiService from './api.service';
 
 // Order status type
-export type OrderStatus = 'pending' | 'completed' | 'cancelled';
+export type OrderStatus = 'pending' | 'completed' | 'cancelled' | 'WaitingForBitcoinPayment' | 'BitcoinPaid' | 'underpaid' | 'overpaid';
 
 // Order item interface
 export interface OrderItem {
@@ -51,7 +51,7 @@ class OrderService {
    * @param id Order ID
    * @returns Promise with the order
    */
-  async getOrderById(id: number): Promise<Order> {
+  async getOrder(id: number): Promise<Order> {
     return apiService.get<Order>(`/orders/${id}`);
   }
 
@@ -77,6 +77,15 @@ class OrderService {
    */
   async updateOrderStatus(id: number, status: OrderStatus): Promise<{ message: string }> {
     return apiService.put<{ message: string }>(`/orders/${id}/status`, { status });
+  }
+
+  /**
+   * Generates a Bitcoin payment address for an order.
+   * @param id Order ID
+   * @returns Promise with the Bitcoin address and amount.
+   */
+  async generateBitcoinPayment(id: number): Promise<{ bitcoinAddress: string; bitcoinAmount: number }> {
+    return apiService.post<{ bitcoinAddress: string; bitcoinAmount: number }>(`/orders/${id}/generate-bitcoin-payment`, {});
   }
 }
 

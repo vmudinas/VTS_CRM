@@ -2,24 +2,24 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
-using FoldsAndFlavors.API.Data;
+using FAI.API.Data;
 
-namespace FoldsAndFlavors.IntegrationTests
+namespace FAI.IntegrationTests
 {
     public class DatabaseIntegrationTests
     {
-        private FoldsAndFlavorsContext CreateContext()
+        private FAIContext CreateContext()
         {
             var dbServer = Environment.GetEnvironmentVariable("DB_SERVER") ?? "localhost";
             var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "1433";
-            var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "FoldsAndFlavors";
+            var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "FAI";
             var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "sa";
             var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "Kla1peda17!";
             var connectionString =
                 $"Server={dbServer},{dbPort};Database={dbName};User Id={dbUser};Password={dbPassword};TrustServerCertificate=True;";
-            var optionsBuilder = new DbContextOptionsBuilder<FoldsAndFlavorsContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<FAIContext>();
             optionsBuilder.UseSqlServer(connectionString);
-            return new FoldsAndFlavorsContext(optionsBuilder.Options);
+            return new FAIContext(optionsBuilder.Options);
         }
 
         [Fact(Skip = "Requires SQL Server instance; skipped in non-containerized environments")]

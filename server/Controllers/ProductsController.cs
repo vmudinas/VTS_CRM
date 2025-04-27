@@ -1,20 +1,26 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using FoldsAndFlavors.API.Data;
-using FoldsAndFlavors.API.Data.Models;
+using FAI.API.Data;
+using FAI.API.Data.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using System.Linq;
 
-namespace FoldsAndFlavors.API.Controllers
+namespace FAI.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
-        private readonly FoldsAndFlavorsContext _context;
+        private readonly FAIContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public ProductsController(FoldsAndFlavorsContext context)
+        public ProductsController(FAIContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         [HttpGet]
@@ -35,41 +41,127 @@ namespace FoldsAndFlavors.API.Controllers
 
         [HttpPost]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> CreateProduct([FromBody] Product product)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreateProduct()
         {
-            if (string.IsNullOrEmpty(product.Name) || product.Price <= 0 || string.IsNullOrEmpty(product.Image) || string.IsNullOrEmpty(product.Category))
+            var form = await Request.ReadFormAsync();
+            string? name = form["name"].FirstOrDefault();
+            string? priceString = form["price"].FirstOrDefault();
+            string? category = form["category"].FirstOrDefault();
+            string? quantityString = form["quantity"].FirstOrDefault();
+            string? badge = form["badge"].FirstOrDefault();
+            string? description = form["description"].FirstOrDefault();
+
+            if (string.IsNullOrEmpty(name) || !decimal.TryParse(priceString, out var price) || string.IsNullOrEmpty(category))
             {
-                return BadRequest(new { message = "Name, price, image, and category are required" });
+                return BadRequest(new { message = "Name, price, and category are required" });
             }
 
-            product.CreatedAt = DateTime.UtcNow;
-            product.UpdatedAt = DateTime.UtcNow;
+            int quantity = 0;
+            if (!string.IsNullOrEmpty(quantityString) && !int.TryParse(quantityString, out quantity))
+            {
+                return BadRequest(new { message = "Quantity must be a number" });
+            }
+
+            // Handle image upload or URL
+            var file = form.Files.FirstOrDefault(f => f.Name == "image");
+            string imageUrl;
+            if (file != null && file.Length > 0)
+            {
+                var webRoot = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
+                var uploadsFolder = Path.Combine(webRoot, "uploads");
+                Directory.CreateDirectory(uploadsFolder);
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, fileName);
+                await using var stream = new FileStream(filePath, FileMode.Create);
+                await file.CopyToAsync(stream);
+                imageUrl = $"/uploads/{fileName}";
+            }
+            else
+            {
+                string? imageField = form["image"].FirstOrDefault();
+                imageUrl = imageField!;
+                if (string.IsNullOrEmpty(imageUrl))
+                {
+                    return BadRequest(new { message = "Image file or URL is required" });
+                }
+            }
+
+            var product = new Product
+            {
+                Name = name,
+                Price = price,
+                Category = category,
+                Quantity = quantity,
+                Badge = string.IsNullOrEmpty(badge) ? null : badge,
+                Description = string.IsNullOrEmpty(description) ? null : description,
+                Image = imageUrl,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
-
             return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
         }
 
         [HttpPut("{id}")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> UpdateProduct(int id, [FromBody] Product updated)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UpdateProduct(int id)
         {
-            if (string.IsNullOrEmpty(updated.Name) || updated.Price <= 0 || string.IsNullOrEmpty(updated.Image) || string.IsNullOrEmpty(updated.Category))
+            var form = await Request.ReadFormAsync();
+            string? name = form["name"].FirstOrDefault();
+            string? priceString = form["price"].FirstOrDefault();
+            string? category = form["category"].FirstOrDefault();
+            string? quantityString = form["quantity"].FirstOrDefault();
+            string? badge = form["badge"].FirstOrDefault();
+            string? description = form["description"].FirstOrDefault();
+
+            if (string.IsNullOrEmpty(name) || !decimal.TryParse(priceString, out var price) || string.IsNullOrEmpty(category))
             {
-                return BadRequest(new { message = "Name, price, image, and category are required" });
+                return BadRequest(new { message = "Name, price, and category are required" });
+            }
+
+            int quantity = 0;
+            if (!string.IsNullOrEmpty(quantityString) && !int.TryParse(quantityString, out quantity))
+            {
+                return BadRequest(new { message = "Quantity must be a number" });
             }
 
             var product = await _context.Products.FindAsync(id);
             if (product == null)
                 return NotFound(new { message = "Product not found" });
 
-            product.Name = updated.Name;
-            product.Price = updated.Price;
-            product.Image = updated.Image;
-            product.Badge = updated.Badge;
-            product.Description = updated.Description;
-            product.Category = updated.Category;
-            product.Quantity = updated.Quantity;
+            // Handle image upload or URL
+            var file = form.Files.FirstOrDefault(f => f.Name == "image");
+            var imageUrl = product.Image;
+            if (file != null && file.Length > 0)
+            {
+                var webRoot = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
+                var uploadsFolder = Path.Combine(webRoot, "uploads");
+                Directory.CreateDirectory(uploadsFolder);
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, fileName);
+                await using var stream = new FileStream(filePath, FileMode.Create);
+                await file.CopyToAsync(stream);
+                imageUrl = $"/uploads/{fileName}";
+            }
+            else
+            {
+                string? imageField = form["image"].FirstOrDefault();
+                if (!string.IsNullOrEmpty(imageField))
+                {
+                    imageUrl = imageField!;
+                }
+            }
+
+            product.Name = name;
+            product.Price = price;
+            product.Category = category;
+            product.Quantity = quantity;
+            product.Badge = string.IsNullOrEmpty(badge) ? null : badge;
+            product.Description = string.IsNullOrEmpty(description) ? null : description;
+            product.Image = imageUrl;
             product.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -91,6 +183,13 @@ namespace FoldsAndFlavors.API.Controllers
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
             return Ok(new { message = "Product deleted successfully" });
+        }
+
+        [HttpGet("categories")]
+        public async Task<IActionResult> GetCategories()
+        {
+            var categories = await _context.Categories.Select(c => c.Name).ToListAsync();
+            return Ok(categories);
         }
     }
 }

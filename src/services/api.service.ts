@@ -3,14 +3,15 @@
  * Handles common API functionality like authentication and HTTP requests
  */
 
-// API base URL - use environment variable or fallback
-const API_URL = process.env.REACT_APP_API_URL 
-  ? process.env.REACT_APP_API_URL.endsWith('/api') 
-    ? process.env.REACT_APP_API_URL 
-    : `${process.env.REACT_APP_API_URL}/api`
+// API base URL - normalize environment variable and fallback (use local dev URL or relative in production)
+const rawApiUrl = process.env.REACT_APP_API_URL?.replace(/\/+$/, '');
+const API_URL = rawApiUrl
+  ? rawApiUrl.endsWith('/api')
+    ? rawApiUrl
+    : `${rawApiUrl}/api`
   : process.env.NODE_ENV === 'production'
     ? '/api'
-    : 'http://localhost:4000/api';
+    : 'http://localhost:5000/api';
 
 /**
  * API Service class for handling HTTP requests
@@ -43,21 +44,28 @@ class ApiService {
   }
 
   /**
-   * Get common headers for API requests
+   * Get common headers for API requests, including Authorization if a token is present
+   * Supports fallback to token in localStorage if not set in memory
    * @param includeContentType Whether to include Content-Type header
    * @returns Headers object
    */
   getHeaders(includeContentType = true): HeadersInit {
     const headers: HeadersInit = {};
-    
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    // Determine token: prefer in-memory, then localStorage
+    let tokenToUse: string | null = this.token;
+    if (!tokenToUse) {
+      try {
+        tokenToUse = localStorage.getItem('token');
+      } catch {
+        tokenToUse = null;
+      }
     }
-    
+    if (tokenToUse) {
+      headers['Authorization'] = `Bearer ${tokenToUse}`;
+    }
     if (includeContentType) {
       headers['Content-Type'] = 'application/json';
     }
-    
     return headers;
   }
 
@@ -68,9 +76,13 @@ class ApiService {
    */
   async get<T>(endpoint: string): Promise<T> {
     // GET requests do not send a body, so omit Content-Type header
-    const response = await fetch(`${API_URL}${endpoint}`, {
+    // Debug: log GET request and headers
+    const url = `${API_URL}${endpoint}`;
+    const headers = this.getHeaders(false);
+    console.debug(`[ApiService GET] ${url} with headers:`, headers);
+    const response = await fetch(url, {
       method: 'GET',
-      headers: this.getHeaders(false)
+      headers
     });
     
     if (!response.ok) {
@@ -224,21 +236,8 @@ class ApiService {
    * @returns Promise with the authentication result
    */
   async login(username: string, password: string): Promise<{ token: string; user: any }> {
-    // Note: AuthController is routed under /api/auth/login
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username, password })
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Login failed');
-    }
-    
-    const data = await response.json();
+    // Authenticate user and get token via POST helper
+    const data = await this.post<{ token: string; user: any }>('/auth/login', { username, password });
     this.setToken(data.token);
     return data;
   }

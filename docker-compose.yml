@@ -6,7 +6,8 @@ services:
     user: root
     # container_name removed to let Compose manage names and avoid conflicts
     environment:
-      SA_PASSWORD: "${SA_PASSWORD}"
+      # Temporarily hardcoding SA_PASSWORD to ensure it's picked up during initial setup
+      SA_PASSWORD: "Kla1peda17!"
       ACCEPT_EULA: "Y"
       MSSQL_PID: "Developer"
     # Expose SQL Server port on the internal Docker network only to avoid host port conflicts
@@ -33,7 +34,7 @@ services:
     environment:
       DB_SERVER: db
       DB_PORT: "1433"
-      DB_NAME: FoldsAndFlavors
+      DB_NAME: FAI
       DB_USER: sa
       DB_PASSWORD: "${SA_PASSWORD}"
       JWT_SECRET: "your-secret-key"
@@ -43,6 +44,9 @@ services:
     ports:
       - "4000:4000"
     restart: on-failure
+    volumes:
+      - uploads-data:/app/wwwroot/media
 
 volumes:
   mssql-data:
+  uploads-data:

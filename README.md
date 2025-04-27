@@ -57,7 +57,7 @@ The backend is implemented in `server/`:
 - Uses EF Core with SQL Server. Default connection string reads:
   - `DB_SERVER` (default: `db`)
   - `DB_PORT` (default: `1433`)
-  - `DB_NAME`   (default: `FoldsAndFlavors`)
+  - `DB_NAME`   (default: `FAI`)
   - `DB_USER`   (default: `sa`)
   - `DB_PASSWORD` (default: `Kla1peda17!`)
 - Authentication/Authorization has been removed: all endpoints are open.

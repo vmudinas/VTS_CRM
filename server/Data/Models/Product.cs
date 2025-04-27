@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FoldsAndFlavors.API.Data.Models
+namespace FAI.API.Data.Models
 {
     public class Product
     {

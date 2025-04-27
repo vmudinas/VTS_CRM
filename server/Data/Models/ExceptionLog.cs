@@ -1,6 +1,6 @@
 using System;
 
-namespace FoldsAndFlavors.API.Data.Models
+namespace FAI.API.Data.Models
 {
     public class ExceptionLog
     {

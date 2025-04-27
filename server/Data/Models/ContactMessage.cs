@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace FoldsAndFlavors.API.Data.Models
+namespace FAI.API.Data.Models
 {
     public class ContactMessage
     {

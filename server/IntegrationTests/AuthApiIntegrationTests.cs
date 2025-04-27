@@ -9,10 +9,10 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-using FoldsAndFlavors.API.Data;
-using FoldsAndFlavors.API.Data.Models;
+using FAI.API.Data;
+using FAI.API.Data.Models;
 
-namespace FoldsAndFlavors.IntegrationTests
+namespace FAI.IntegrationTests
 {
     public class AuthApiIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
     {
@@ -27,16 +27,16 @@ namespace FoldsAndFlavors.IntegrationTests
                 builder.ConfigureServices(services =>
                 {
                     var descriptor = services.SingleOrDefault(
-                        d => d.ServiceType == typeof(DbContextOptions<FoldsAndFlavorsContext>));
+                        d => d.ServiceType == typeof(DbContextOptions<FAIContext>));
                     if (descriptor != null) services.Remove(descriptor);
-                    services.AddDbContext<FoldsAndFlavorsContext>(options =>
+                    services.AddDbContext<FAIContext>(options =>
                     {
                         options.UseInMemoryDatabase("TestDb");
                     });
 
                     var sp = services.BuildServiceProvider();
                     using var scope = sp.CreateScope();
-                    var context = scope.ServiceProvider.GetRequiredService<FoldsAndFlavorsContext>();
+                    var context = scope.ServiceProvider.GetRequiredService<FAIContext>();
                     context.Database.EnsureDeleted();
                     context.Database.EnsureCreated();
                     context.Users.Add(new User { Id = 1, Username = "user1", Password = "pass1", IsAdmin = false });

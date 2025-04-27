@@ -1,23 +1,23 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using FoldsAndFlavors.API.Utils;
+using FAI.API.Utils;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using FoldsAndFlavors.API.Data;
-using FoldsAndFlavors.API.Data.Models;
+using FAI.API.Data;
+using FAI.API.Data.Models;
 
-namespace FoldsAndFlavors.API.Controllers
+namespace FAI.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly FoldsAndFlavorsContext _context;
+        private readonly FAIContext _context;
         private readonly string _jwtSecret;
 
-        public AuthController(FoldsAndFlavorsContext context)
+        public AuthController(FAIContext context)
         {
             _context = context;
             // JWT secret: use environment variable if set and non-empty, otherwise fallback to default (must be >256 bits)
@@ -36,9 +36,19 @@ namespace FoldsAndFlavors.API.Controllers
                 return BadRequest(new { message = "Username and password are required" });
             }
 
+            Console.WriteLine($"[AUTH] Login attempt: Username='{request.Username}', Password='{request.Password}'");
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
-            if (user == null || !PasswordHasher.Verify(user.Password, request.Password))
+            if (user == null)
             {
+                Console.WriteLine($"[AUTH] No user found with username '{request.Username}'");
+                return Unauthorized(new { message = "Invalid credentials" });
+            }
+            Console.WriteLine($"[AUTH] Found user: {user.Username}, StoredHash: '{user.Password}'");
+            var passwordOk = PasswordHasher.Verify(user.Password, request.Password);
+            Console.WriteLine($"[AUTH] Password verification result: {passwordOk}");
+            if (!passwordOk)
+            {
+                Console.WriteLine($"[AUTH] Password mismatch for user '{user.Username}'");
                 return Unauthorized(new { message = "Invalid credentials" });
             }
 

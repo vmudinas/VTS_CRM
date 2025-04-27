@@ -27,11 +27,34 @@ interface EmailFormState {
 // Removed unused interface
 
 const Admin: React.FC = () => {
+  // Upload progress state for video/image uploads
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  // Categories state
+  const [categories, setCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    console.log('Admin: Fetching categories...');
+    const fetchCategories = async () => {
+      try {
+        // Corrected API endpoint path
+        const data = await apiService.get('/products/categories');
+        console.log('Admin: Categories fetched successfully:', data);
+        setCategories(data as string[]);
+        console.log('Admin: Categories state updated:', data);
+      } catch (err: any) {
+        console.error('Admin: Error fetching categories:', err);
+        setError(err.message || 'Failed to fetch categories');
+      }
+    };
+
+    fetchCategories();
+  }, []);
+  
   // Auth state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
   const [loginError, setLoginError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'messages'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'messages' | 'videos'>('products');
   const [isLoading, setIsLoading] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   
@@ -39,8 +62,13 @@ const Admin: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [videos, setVideos] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Video modal state
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<any | null>(null);
   
   // UI state
   const [showProductModal, setShowProductModal] = useState(false);
@@ -68,6 +96,20 @@ const Admin: React.FC = () => {
   const [emailForm, setEmailForm] = useState<EmailFormState>({ to: '', subject: '', message: '' });
   // Removing unused orderStatusForm state
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await apiService.get('/api/products/categories');
+        setCategories(data as string[]);
+      } catch (err: any) {
+        console.error('Error fetching categories:', err);
+        setError(err.message || 'Failed to fetch categories');
+      }
+    };
+
+    fetchCategories();
+  }, []);
   
   // On mount, rehydrate auth token from localStorage
   useEffect(() => {
@@ -90,9 +132,9 @@ const Admin: React.FC = () => {
     try {
       const data = await apiService.login(loginForm.username, loginForm.password);
       
-      // Store the token
-      // Persist token in localStorage and state
+      // Store the token in both localStorage and our API service, then update state
       localStorage.setItem('token', data.token);
+      apiService.setToken(data.token);
       setToken(data.token);
       setIsLoggedIn(true);
     } catch (err: any) {
@@ -156,7 +198,16 @@ const Admin: React.FC = () => {
             setOrders(data);
           } catch (err: any) {
             console.error('Error fetching orders:', err);
-            setError(err.message || 'Failed to fetch orders');
+            // If unauthorized, clear auth and prompt login
+            if (err.message.includes('401')) {
+              apiService.logout();
+              localStorage.removeItem('token');
+              setToken(null);
+              setIsLoggedIn(false);
+              setLoginError('Session expired. Please login again');
+            } else {
+              setError(err.message || 'Failed to fetch orders');
+            }
           } finally {
             setDataLoading(false);
           }
@@ -172,21 +223,50 @@ const Admin: React.FC = () => {
           setError(null);
           
           try {
-            // Set the token in the API service
+            // Set the token in the API service and log for debugging
             apiService.setToken(token);
-            
+            console.debug('Admin.fetchMessages: setToken →', apiService.getToken());
+            console.debug('Admin.fetchMessages: calling messageService.getAllMessages()');
             // Fetch messages using the message service
             const data = await messageService.getAllMessages();
+            console.debug('Admin.fetchMessages: received messages', data);
             setMessages(data);
           } catch (err: any) {
             console.error('Error fetching messages:', err);
-            setError(err.message || 'Failed to fetch messages');
+            // If unauthorized, clear auth and prompt login
+            if (err.message.includes('401')) {
+              apiService.logout();
+              localStorage.removeItem('token');
+              setToken(null);
+              setIsLoggedIn(false);
+              setLoginError('Session expired. Please login again');
+            } else {
+              setError(err.message || 'Failed to fetch messages');
+            }
           } finally {
             setDataLoading(false);
           }
         };
         
         fetchMessages();
+      }
+      // Fetch videos for videos tab
+      else if (activeTab === 'videos') {
+        const fetchVideos = async () => {
+          if (!token) return;
+          setDataLoading(true);
+          setError(null);
+          try {
+            apiService.setToken(token);
+            const res = await apiService.get('/videos');
+            setVideos(res as any[]);
+          } catch (err: any) {
+            setError(err.message || 'Failed to fetch videos');
+          } finally {
+            setDataLoading(false);
+          }
+        };
+        fetchVideos();
       }
     }
   }, [isLoggedIn, token, activeTab]);
@@ -476,7 +556,7 @@ const Admin: React.FC = () => {
         <div className="text-center mb-8">
           <h1 className="font-heading text-3xl font-bold text-gray-800 mb-2">Admin Login</h1>
           <p className="text-gray-600">Please log in to access the admin dashboard</p>
-          <p className="text-gray-500 text-sm mt-2">(Use username: admin, password: admin)</p>
+          <p className="text-gray-500 text-sm mt-2">(Use username: admin, password: letmein123)</p>
         </div>
         
         <div className="max-w-md mx-auto bg-white rounded-xl shadow-md p-6">
@@ -575,6 +655,16 @@ const Admin: React.FC = () => {
           onClick={() => setActiveTab('messages')}
         >
           Messages
+        </button>
+        <button
+          className={`py-2 px-4 font-medium ${
+            activeTab === 'videos'
+              ? 'text-primary-600 border-b-2 border-primary-600'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+          onClick={() => setActiveTab('videos')}
+        >
+          Videos
         </button>
       </div>
       
@@ -833,7 +923,233 @@ const Admin: React.FC = () => {
           </div>
         )}
       </div>
+      {/* Videos Tab */}
+      {activeTab === 'videos' && !dataLoading && (
+        <div>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="font-heading text-xl font-semibold text-gray-800">Videos Management</h2>
+            <button
+              onClick={() => { setSelectedVideo(null); setShowVideoModal(true); }}
+              className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors duration-300"
+            >
+              Add New Video
+            </button>
+          </div>
+          {videos.length === 0 ? (
+            <p className="text-gray-600 py-4">No videos found.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thumbnail</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Uploaded</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {videos.map((video) => (
+                    <tr key={video.id}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <img src={video.thumbnailPath} alt={video.title} className="h-12 w-20 object-cover rounded" />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">{video.title}</div>
+                        <div className="text-xs text-gray-500">{video.description}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{video.category}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{new Date(video.uploadedAt).toLocaleDateString()}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button
+                          onClick={() => { setSelectedVideo(video); setShowVideoModal(true); }}
+                          className="text-primary-600 hover:text-primary-900 mr-3"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (!token || !window.confirm('Are you sure you want to delete this video?')) return;
+                            setDataLoading(true);
+                            setError(null);
+                            try {
+                              apiService.setToken(token);
+                              await apiService.delete(`/videos/${video.id}`);
+                              setSuccessMessage('Video deleted successfully');
+                              setTimeout(() => setSuccessMessage(null), 3000);
+                              // Refresh videos
+                              const refreshed = await apiService.get('/videos');
+                              setVideos(refreshed as any[]);
+                            } catch (err: any) {
+                              setError(err.message || 'Failed to delete video');
+                            } finally {
+                              setDataLoading(false);
+                            }
+                          }}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
 
+      {/* Video Modal */}
+      {showVideoModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <h2 className="font-heading text-2xl font-bold text-gray-800 mb-4">
+              {selectedVideo ? 'Edit Video' : 'Add New Video'}
+            </h2>
+            {/* Progress Bar */}
+            {uploadProgress > 0 && uploadProgress < 100 && (
+              <div className="mb-4">
+                <div className="w-full bg-gray-200 rounded-full h-4">
+                  <div
+                    className="bg-primary-600 h-4 rounded-full transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  ></div>
+                </div>
+                <div className="text-xs text-gray-600 mt-1 text-center">{uploadProgress}%</div>
+              </div>
+            )}
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (!token) return;
+                const formData = new FormData();
+                formData.append('Title', (e.target as any).title.value);
+                formData.append('Description', (e.target as any).description.value);
+                formData.append('Category', (e.target as any).category.value);
+                const videoFileInput = (e.target as any).elements["VideoFile"];
+                if (videoFileInput && videoFileInput.files && videoFileInput.files[0]) {
+                  formData.append('VideoFile', videoFileInput.files[0]);
+                }
+                const thumbFileInput = (e.target as any).elements["thumbnailFile"];
+                if (thumbFileInput && thumbFileInput.files && thumbFileInput.files[0]) {
+                  formData.append('ThumbnailFile', thumbFileInput.files[0]);
+                }
+                setDataLoading(true);
+                setError(null);
+                setUploadProgress(0);
+                try {
+                  // Use Axios for upload progress
+                  const axios = (window as any).axios || (await import("axios")).default;
+                  apiService.setToken(token);
+                  let res;
+                  const config = {
+                    headers: { Authorization: `Bearer ${token}` },
+                    onUploadProgress: (progressEvent: ProgressEvent) => {
+                      if (progressEvent.lengthComputable) {
+                        setUploadProgress(Math.round((progressEvent.loaded * 100) / progressEvent.total));
+                      }
+                    }
+                  };
+                  if (selectedVideo) {
+                    res = await axios.put(`/api/videos/${selectedVideo.id}`, formData, config);
+                  } else {
+                    res = await axios.post('/api/videos', formData, config);
+                  }
+                  setShowVideoModal(false);
+                  setSuccessMessage(selectedVideo ? 'Video updated successfully' : 'Video uploaded successfully');
+                  setTimeout(() => setSuccessMessage(null), 3000);
+                  // Refresh videos
+                  const refreshed = await apiService.get('/videos');
+                  setVideos(refreshed as any[]);
+                } catch (err: any) {
+                  setError(err.message || 'Failed to save video');
+                } finally {
+                  setDataLoading(false);
+                  setUploadProgress(0);
+                }
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                <input
+                  type="text"
+                  name="title"
+                  defaultValue={selectedVideo?.title || ''}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea
+                  name="description"
+                  defaultValue={selectedVideo?.description || ''}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                ></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <input
+                  type="text"
+                  name="category"
+                  defaultValue={selectedVideo?.category || ''}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Video File (MP4)</label>
+                <input
+                  type="file"
+                  name="VideoFile"
+                  accept="video/mp4,video/quicktime,.mp4,.mov"
+                  className="w-full"
+                />
+                {selectedVideo && (
+                  <div className="text-xs text-gray-500 mt-1">Leave blank to keep existing video.</div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Thumbnail (JPG/PNG)</label>
+                <input
+                  type="file"
+                  name="thumbnailFile"
+                  accept="image/png,image/jpeg"
+                  className="w-full"
+                />
+                {selectedVideo && (
+                  <div className="text-xs text-gray-500 mt-1">Leave blank to keep existing thumbnail.</div>
+                )}
+              </div>
+              <div className="flex justify-end space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowVideoModal(false)}
+                  className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors duration-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={dataLoading}
+                  className={`px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors duration-300 ${
+                    dataLoading ? 'opacity-75 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {dataLoading ? (selectedVideo ? 'Saving...' : 'Uploading...') : (selectedVideo ? 'Save Changes' : 'Upload Video')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       {/* Product Modal */}
       {showProductModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -882,9 +1198,10 @@ const Admin: React.FC = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     required
                   >
-                    <option value="origami">Origami</option>
-                    <option value="candies">Candies</option>
-                    <option value="snacks">Snacks</option>
+                    {/* Use the fetched categories state */}
+                    {categories.map(cat =>
+                      <option key={cat} value={cat}>{cat}</option>
+                    )}
                   </select>
                 </div>
                 

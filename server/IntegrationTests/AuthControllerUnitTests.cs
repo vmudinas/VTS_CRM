@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
-using FoldsAndFlavors.API.Controllers;
-using FoldsAndFlavors.API.Data;
-using FoldsAndFlavors.API.Data.Models;
+using FAI.API.Controllers;
+using FAI.API.Data;
+using FAI.API.Data.Models;
 
-namespace FoldsAndFlavors.IntegrationTests
+namespace FAI.IntegrationTests
 {
     public class AuthControllerUnitTests
     {
@@ -16,12 +16,12 @@ namespace FoldsAndFlavors.IntegrationTests
             // Ensure strong JWT secret for tests
             Environment.SetEnvironmentVariable("JWT_SECRET", "abcdefghijklmnopqrstuvwxyzABCDEFG");
         }
-        private FoldsAndFlavorsContext GetInMemoryContext()
+        private FAIContext GetInMemoryContext()
         {
-            var options = new DbContextOptionsBuilder<FoldsAndFlavorsContext>()
+            var options = new DbContextOptionsBuilder<FAIContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
-            var context = new FoldsAndFlavorsContext(options);
+            var context = new FAIContext(options);
             context.Users.Add(new User
             {
                 Id = 1,

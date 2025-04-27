@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FoldsAndFlavors.API.Data.Models
+namespace FAI.API.Data.Models
 {
     public class Order
     {
@@ -26,6 +26,11 @@ namespace FoldsAndFlavors.API.Data.Models
 
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        // New fields for Bitcoin payment
+        public string? BitcoinAddress { get; set; }
+        [Column(TypeName = "decimal(18,8)")] // Use appropriate precision for BTC
+        public decimal? BitcoinAmount { get; set; }
 
         public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
     }

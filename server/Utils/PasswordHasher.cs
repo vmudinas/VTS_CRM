@@ -1,7 +1,7 @@
 using System;
 using System.Security.Cryptography;
 
-namespace FoldsAndFlavors.API.Utils
+namespace FAI.API.Utils
 {
     public static class PasswordHasher
     {

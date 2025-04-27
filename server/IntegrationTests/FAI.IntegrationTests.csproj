@@ -5,7 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- Reference the API project for DbContext -->
-    <ProjectReference Include="..\FoldsAndFlavors.API.csproj" />
+    <ProjectReference Include="..\FAI.API.csproj" />
   </ItemGroup>
   <ItemGroup>
     <!-- EF Core SQL Server provider for UseSqlServer extension -->

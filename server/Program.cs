@@ -2,9 +2,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
-using FoldsAndFlavors.API.Data;
+using FAI.API.Data;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+// Force Kestrel to listen on HTTP port 5003 for local testing (ports 5001/5002 may be in use)
+builder.WebHost.UseUrls("http://0.0.0.0:4000");
 
 // JWT secret (must be >256 bits if using fallback default)
 var defaultJwtSecret = "abcdefghijklmnopqrstuvwxyzABCDEFG"; // 33 chars, 264 bits
@@ -17,38 +20,72 @@ var jwtSecret = !string.IsNullOrWhiteSpace(envJwtSecret)
 using var _sha = System.Security.Cryptography.SHA256.Create();
 var signingKeyBytes = _sha.ComputeHash(Encoding.UTF8.GetBytes(jwtSecret));
 
-// Database connection parameters
-var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "sa";
-var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "Kla1peda17!";
-var dbServer = Environment.GetEnvironmentVariable("DB_SERVER") ?? "db";
-var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "FoldsAndFlavors";
-var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "1433";
-
-var connectionString = $"Server={dbServer},{dbPort};Database={dbName};User Id={dbUser};Password={dbPassword};TrustServerCertificate=True;";
-
-// Add services
-builder.Services.AddDbContext<FoldsAndFlavorsContext>(options =>
-    options.UseSqlServer(connectionString));
+// Configure database context: in Development always use in-memory; in Production require explicit SQL credentials
+var dbServerEnv = Environment.GetEnvironmentVariable("DB_SERVER");
+var dbUserEnv = Environment.GetEnvironmentVariable("DB_USER");
+var dbPasswordEnv = Environment.GetEnvironmentVariable("DB_PASSWORD");
+// Always attempt to use SQL Server if credentials are provided, regardless of environment
+if (!string.IsNullOrWhiteSpace(dbServerEnv)
+    && !string.IsNullOrWhiteSpace(dbUserEnv)
+    && !string.IsNullOrWhiteSpace(dbPasswordEnv))
+{
+    var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "FAI";
+    var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "1433";
+    var connectionString = $"Server={dbServerEnv},{dbPort};Database={dbName};User Id={dbUserEnv};Password={dbPasswordEnv};TrustServerCertificate=True;";
+    builder.Services.AddDbContext<FAIContext>(options =>
+        options.UseSqlServer(connectionString));
+}
+else
+{
+    // Fallback to SQLite database if SQL credentials are missing
+    builder.Services.AddDbContext<FAIContext>(options =>
+        options.UseSqlite("Data Source=FAIDev.db"));
+}
 
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-.AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = false;
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateIssuerSigningKey = true,
-            // Use derived signing key bytes
-            IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes),
-        ValidateLifetime = true,
-    };
-});
+   .AddJwtBearer(options =>
+   {
+       // Force use of JwtSecurityTokenHandler instead of default JsonWebTokenHandler (ASP.NET Core 8+)
+       // Clear and add to TokenHandlers which is used by default
+       options.TokenHandlers.Clear();
+       options.TokenHandlers.Add(new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler());
+       options.RequireHttpsMetadata = false;
+       options.SaveToken = true;
+       // Log token events to help diagnose 401s
+       options.Events = new JwtBearerEvents
+       {
+           OnMessageReceived = ctx =>
+           {
+               Console.WriteLine($"[JWT] OnMessageReceived: Authorization header='{ctx.Request.Headers["Authorization"]}'");
+               return Task.CompletedTask;
+           },
+           OnAuthenticationFailed = ctx =>
+           {
+               Console.WriteLine($"[JWT] Authentication failed: {ctx.Exception.Message}");
+               return Task.CompletedTask;
+           },
+           OnTokenValidated = ctx =>
+           {
+               Console.WriteLine($"[JWT] Token validated for issuer '{ctx.Principal.Identity.Name}'");
+               return Task.CompletedTask;
+           }
+       };
+       options.TokenValidationParameters = new TokenValidationParameters
+       {
+           ValidateIssuer = false,
+           ValidateAudience = false,
+           ValidateIssuerSigningKey = true,
+           // Use derived signing key bytes
+           IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes),
+           // Disable lifetime validation for development tokens
+           ValidateLifetime = false,
+           RequireExpirationTime = false
+       };
+   });
 
 builder.Services.AddAuthorization(options =>
 {
@@ -59,41 +96,113 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddControllers()
        .AddNewtonsoftJson();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+ builder.Services.AddSwaggerGen(c =>
+ {
+     // Configure Swagger document
+     c.SwaggerDoc("v1", new OpenApiInfo { Title = "FAI API", Version = "v1" });
+     // Define the Bearer auth scheme
+     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+     {
+         Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+         Name = "Authorization",
+         In = ParameterLocation.Header,
+         Type = SecuritySchemeType.Http,
+         Scheme = "bearer",
+         BearerFormat = "JWT"
+     });
+     // Require Bearer token for all operations
+     c.AddSecurityRequirement(new OpenApiSecurityRequirement
+     {
+         {
+             new OpenApiSecurityScheme
+             {
+                 Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+             },
+             new string[] { }
+         }
+     });
+ });
+ // Enable CORS for development (allow any origin, header, and method)
+ builder.Services.AddCors(options =>
+ {
+     options.AddPolicy("AllowAll", policy =>
+         policy.AllowAnyOrigin()
+               .AllowAnyHeader()
+               .AllowAnyMethod());
+ });
 
 var app = builder.Build();
+// Ensure uploads directory exists for file uploads
+{
+    var webRoot = app.Environment.WebRootPath
+        ?? (app.Environment.ContentRootPath != null
+            ? System.IO.Path.Combine(app.Environment.ContentRootPath, "wwwroot")
+            : throw new InvalidOperationException("Both WebRootPath and ContentRootPath are null."));
+    var uploadsFolder = System.IO.Path.Combine(webRoot, "uploads");
+    System.IO.Directory.CreateDirectory(uploadsFolder);
+}
 
 // Apply database initialization: use Migrate for relational, EnsureCreated for in-memory
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<FoldsAndFlavorsContext>();
+    var context = scope.ServiceProvider.GetRequiredService<FAIContext>();
     // Use relational migrations when supported, else create in-memory database
     if (context.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory")
     {
+        // Reset in-memory database on each run to ensure seeding runs
+        context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
     }
     else
     {
         context.Database.Migrate();
+        context.Database.EnsureCreated();
     }
 
-    // Seed default admin user if configured via environment variables
-    var adminUsername = Environment.GetEnvironmentVariable("ADMIN_USERNAME");
-    var adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
-    if (!string.IsNullOrEmpty(adminUsername) && !string.IsNullOrEmpty(adminPassword))
+    // Seed default admin user: use env vars or fallback to known credentials
+    var adminUsernameEnv = Environment.GetEnvironmentVariable("ADMIN_USERNAME");
+    var adminPasswordEnv = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
+    // In Development ignore ADMIN_USERNAME/PASSWORD env vars and always seed fallback default
+    if (!app.Environment.IsDevelopment()
+        && !string.IsNullOrEmpty(adminUsernameEnv)
+        && !string.IsNullOrEmpty(adminPasswordEnv))
     {
-        // Check if the admin user already exists
-        if (!context.Users.Any(u => u.Username == adminUsername))
+        if (!context.Users.Any(u => u.Username == adminUsernameEnv))
         {
-            // Create and add the admin user with hashed password
-            context.Users.Add(new FoldsAndFlavors.API.Data.Models.User
+            context.Users.Add(new FAI.API.Data.Models.User
             {
-                Username = adminUsername,
-                Password = FoldsAndFlavors.API.Utils.PasswordHasher.Hash(adminPassword),
-                IsAdmin = true
+                Username = adminUsernameEnv,
+                Password = FAI.API.Utils.PasswordHasher.Hash(adminPasswordEnv),
+                IsAdmin = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             });
             context.SaveChanges();
         }
+    }
+    else
+    {
+        // Fallback default admin: username=admin, password=letmein123 (stored as plain-text for development)
+        const string defaultUser = "admin";
+        const string defaultPass = "letmein123";
+        if (!context.Users.Any())
+        {
+            context.Users.Add(new FAI.API.Data.Models.User
+            {
+                Username = defaultUser,
+                // Store plain-text for development-only fallback to simplify login
+                Password = defaultPass,
+                IsAdmin = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            });
+            context.SaveChanges();
+        }
+    }
+    // Debug: log all users in database
+    foreach (var u in context.Users)
+    {
+        Console.WriteLine($"[SEED] User: {u.Username ?? "null"}, PasswordHash: {u.Password ?? "null"}, IsAdmin: {u.IsAdmin}");
     }
 }
 
@@ -107,12 +216,12 @@ app.Use(async (context, next) =>
     }
     catch (Exception ex)
     {
-        var dbContext = context.RequestServices.GetRequiredService<FoldsAndFlavorsContext>();
+        var dbContext = context.RequestServices.GetRequiredService<FAIContext>();
         var stackTrace = new System.Diagnostics.StackTrace(ex, true);
         var frame = stackTrace.GetFrames()?.FirstOrDefault();
         var fileName = frame?.GetFileName();
         var methodName = frame?.GetMethod()?.Name;
-        var exceptionLog = new FoldsAndFlavors.API.Data.Models.ExceptionLog
+        var exceptionLog = new FAI.API.Data.Models.ExceptionLog
         {
             FileName = fileName,
             MethodName = methodName,
@@ -129,12 +238,14 @@ app.Use(async (context, next) =>
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "FoldsAndFlavors API V1");
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "FAI API V1");
 });
 
 // Serve React UI from wwwroot
 app.UseDefaultFiles();
-app.UseStaticFiles();
+    app.UseStaticFiles();
+    // Enable CORS middleware
+    app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
