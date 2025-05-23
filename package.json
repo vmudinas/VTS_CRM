@@ -42,11 +42,10 @@
     ]
   },
   "jest": {
-    "testPathIgnorePatterns": [
-      "<rootDir>/cypress/"
-    ],
     "moduleNameMapper": {
-      "^react-router-dom$": "<rootDir>/node_modules/react-router-dom/dist/index.js"
+      "^react-router-dom$": "<rootDir>/node_modules/react-router-dom/dist/index.js",
+      "^swiper/react$": "<rootDir>/src/__mocks__/swiperMock.js",
+      "^swiper/modules$": "<rootDir>/src/__mocks__/swiperModulesMock.js"
     }
   },
   "browserslist": {
