@@ -1,0 +1,1 @@
+// Empty mock for swiper CSS imports
