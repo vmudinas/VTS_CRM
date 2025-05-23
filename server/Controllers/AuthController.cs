@@ -38,6 +38,7 @@ namespace FAI.API.Controllers
 
             Console.WriteLine($"[AUTH] Login attempt: Username='{request.Username}', Password='{request.Password}'");
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
+            Console.WriteLine($"[AUTH_DEBUG] User retrieved from DB: Username='{user?.Username ?? "null"}', Password='{user?.Password ?? "null"}'"); // Debug log
             if (user == null)
             {
                 Console.WriteLine($"[AUTH] No user found with username '{request.Username}'");

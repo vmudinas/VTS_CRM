@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'; // Import useEffect
 import { Link } from 'react-router-dom';
 import { Product } from '../App';
 import { orderService } from '../services';
-import QRCode from 'qrcode.react'; // Import QRCode component
+import { QRCodeCanvas } from 'qrcode.react'; // Import QRCodeCanvas component
 
 interface CartProps {
   cartItems: Product[];
@@ -166,7 +166,7 @@ const Cart: React.FC<CartProps> = ({ cartItems, setCartItems }) => {
           <div className="flex flex-col items-center"> {/* Center the QR code */}
             <p className="text-gray-800 font-semibold break-all mb-4">Address: {bitcoinAddress}</p>
             {bitcoinUri && (
-                <QRCode value={bitcoinUri} size={256} level="H" />
+                <QRCodeCanvas value={bitcoinUri} size={256} level="H" />
             )}
           </div>
         )}

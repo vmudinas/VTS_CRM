@@ -15,7 +15,12 @@ class ProductService {
    * @returns Promise with array of products
    */
   async getAllProducts(): Promise<Product[]> {
-    return apiService.get<Product[]>('/products');
+    const products = await apiService.get<Product[]>('/products');
+    // Prepend backend URL to image paths
+    return products.map(product => ({
+      ...product,
+      image: product.image ? `http://localhost:4000${product.image}` : product.image,
+    }));
   }
 
   /**
@@ -24,7 +29,12 @@ class ProductService {
    * @returns Promise with the product
    */
   async getProductById(id: number): Promise<Product> {
-    return apiService.get<Product>(`/products/${id}`);
+    const product = await apiService.get<Product>(`/products/${id}`);
+    // Prepend backend URL to image path
+    return {
+      ...product,
+      image: product.image ? `http://localhost:4000${product.image}` : product.image,
+    };
   }
 
   /**

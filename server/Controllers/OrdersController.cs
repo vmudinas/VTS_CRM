@@ -5,6 +5,9 @@ using FAI.API.Data;
 using FAI.API.Data.Models;
 using FAI.API.Services.Bitcoin; // Added using directive
 using NBitcoin; // Added using directive for Network type
+using System.Text; // Added using directive for Encoding
+using System.Security.Cryptography; // Added using directive for HMACSHA256
+using Microsoft.Extensions.Configuration; // Added using directive for IConfiguration
 
 namespace FAI.API.Controllers
 {
@@ -14,11 +17,13 @@ namespace FAI.API.Controllers
     {
         private readonly FAIContext _context;
         private readonly BitcoinWalletService _bitcoinWalletService; // Added BitcoinWalletService field
+        private readonly string? _webhookSecret; // Added field for webhook secret
 
-        public OrdersController(FAIContext context, BitcoinWalletService bitcoinWalletService) // Added BitcoinWalletService to constructor
+        public OrdersController(FAIContext context, BitcoinWalletService bitcoinWalletService, IConfiguration configuration) // Added BitcoinWalletService and IConfiguration to constructor
         {
             _context = context;
             _bitcoinWalletService = bitcoinWalletService; // Assign the injected service
+            _webhookSecret = configuration["Bitcoin:WebhookSecret"]; // Read webhook secret from configuration
         }
 
         [HttpGet]

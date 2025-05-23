@@ -15,8 +15,7 @@ namespace FAI.API.Data.Models
 
         [Required]
         public bool IsAdmin { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // Set default value
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow; // Set default value
     }
 }

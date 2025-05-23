@@ -143,66 +143,183 @@ var app = builder.Build();
 }
 
 // Apply database initialization: use Migrate for relational, EnsureCreated for in-memory
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<FAIContext>();
-    // Use relational migrations when supported, else create in-memory database
-    if (context.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory")
-    {
-        // Reset in-memory database on each run to ensure seeding runs
-        context.Database.EnsureDeleted();
-        context.Database.EnsureCreated();
-    }
-    else
-    {
-        context.Database.Migrate();
-        context.Database.EnsureCreated();
-    }
+// Moved database initialization and seeding to a separate method to avoid interference with integration tests
+// using (var scope = app.Services.CreateScope())
+// {
+//     var context = scope.ServiceProvider.GetRequiredService<FAIContext>();
+//     // Use relational migrations when supported, else create in-memory database
+//     if (context.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory")
+//     {
+//         // Reset in-memory database on each run to ensure seeding runs
+//         context.Database.EnsureDeleted();
+//         context.Database.EnsureCreated();
+//     }
+//     else
+//     {
+//         // Check if the database exists and can be connected to.
+//         // If not, Migrate() will create it and apply migrations.
+//         // If it exists, Migrate() will only apply pending migrations.
+//         // This handles the "Database already exists" error on subsequent runs.
+//         try
+//         {
+//             // Attempt to connect and apply migrations
+//             context.Database.Migrate();
+//         }
+//         catch (Microsoft.Data.SqlClient.SqlException ex) when (ex.Number == 1801)
+//         {
+//             // Handle the "Database 'FAI' already exists" error specifically
+//             Console.WriteLine($"Database 'FAI' already exists. Skipping initial creation attempt.");
+//             // The application should continue as Migrate() would have already
+//             // checked for and applied pending migrations if the database was accessible.
+//         }
+//         catch (Exception ex)
+//         {
+//             // Log other potential database connection/migration errors
+//             Console.WriteLine($"An error occurred while applying migrations: {ex.Message}");
+//             throw; // Re-throw the exception if it's not the "database exists" error
+//         }
+//     }
 
-    // Seed default admin user: use env vars or fallback to known credentials
-    var adminUsernameEnv = Environment.GetEnvironmentVariable("ADMIN_USERNAME");
-    var adminPasswordEnv = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
-    // In Development ignore ADMIN_USERNAME/PASSWORD env vars and always seed fallback default
-    if (!app.Environment.IsDevelopment()
-        && !string.IsNullOrEmpty(adminUsernameEnv)
-        && !string.IsNullOrEmpty(adminPasswordEnv))
+//     // Seed default admin user: use env vars or fallback to known credentials
+//     var adminUsernameEnv = Environment.GetEnvironmentVariable("ADMIN_USERNAME");
+//     var adminPasswordEnv = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
+//     // In Development ignore ADMIN_USERNAME/PASSWORD env vars and always seed fallback default
+//     if (!app.Environment.IsDevelopment()
+//         && !string.IsNullOrEmpty(adminUsernameEnv)
+//         && !string.IsNullOrEmpty(adminPasswordEnv))
+//     {
+//         if (!context.Users.Any(u => u.Username == adminUsernameEnv))
+//         {
+//             context.Users.Add(new FAI.API.Data.Models.User
+//             {
+//                 Username = adminUsernameEnv,
+//                 Password = FAI.API.Utils.PasswordHasher.Hash(adminPasswordEnv),
+//                 IsAdmin = true,
+//                 CreatedAt = DateTime.UtcNow,
+//                 UpdatedAt = DateTime.UtcNow
+//             });
+//             context.SaveChanges();
+//         }
+//     }
+//     else
+//     {
+//         // Fallback default admin: username=admin, password=letmein123 (stored as plain-text for development)
+//         const string defaultUser = "admin";
+//         const string defaultPass = "letmein123";
+//         if (!context.Users.Any())
+//         {
+//             context.Users.Add(new FAI.API.Data.Models.User
+//             {
+//                 Username = defaultUser,
+//                 // Store plain-text for development-only fallback to simplify login
+//                 Password = defaultPass,
+//                 IsAdmin = true,
+//                 CreatedAt = DateTime.UtcNow,
+//                 UpdatedAt = DateTime.UtcNow
+//             });
+//             context.SaveChanges();
+//         }
+//     }
+//     // Debug: log all users in database
+//     foreach (var u in context.Users)
+//     {
+//         Console.WriteLine($"[SEED] User: {u.Username ?? "null"}, PasswordHash: {u.Password ?? "null"}, IsAdmin: {u.IsAdmin}");
+//     }
+// }
+
+// Moved database initialization and seeding to a separate method to avoid interference with integration tests
+// Only initialize the database if not in the IntegrationTesting environment
+if (app.Environment.EnvironmentName != "IntegrationTesting")
+{
+    InitializeDatabase(app);
+}
+
+// Separate method for database initialization and seeding
+void InitializeDatabase(IApplicationBuilder applicationBuilder)
+{
+    using (var scope = applicationBuilder.ApplicationServices.CreateScope())
     {
-        if (!context.Users.Any(u => u.Username == adminUsernameEnv))
+        var context = scope.ServiceProvider.GetRequiredService<FAIContext>();
+        var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>(); // Get IWebHostEnvironment
+
+        // Use relational migrations when supported, else create in-memory database
+        if (context.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory")
         {
-            context.Users.Add(new FAI.API.Data.Models.User
-            {
-                Username = adminUsernameEnv,
-                Password = FAI.API.Utils.PasswordHasher.Hash(adminPasswordEnv),
-                IsAdmin = true,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            });
-            context.SaveChanges();
+            // Reset in-memory database on each run to ensure seeding runs
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
         }
-    }
-    else
-    {
-        // Fallback default admin: username=admin, password=letmein123 (stored as plain-text for development)
-        const string defaultUser = "admin";
-        const string defaultPass = "letmein123";
-        if (!context.Users.Any())
+        else
         {
-            context.Users.Add(new FAI.API.Data.Models.User
+            // Check if the database exists and can be connected to.
+            // If not, Migrate() will create it and apply migrations.
+            // If it exists, Migrate() will only apply pending migrations.
+            // This handles the "Database already exists" error on subsequent runs.
+            try
             {
-                Username = defaultUser,
-                // Store plain-text for development-only fallback to simplify login
-                Password = defaultPass,
-                IsAdmin = true,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            });
-            context.SaveChanges();
+                // Attempt to connect and apply migrations
+                context.Database.Migrate();
+            }
+            catch (Microsoft.Data.SqlClient.SqlException ex) when (ex.Number == 1801)
+            {
+                // Handle the "Database 'FAI' already exists" error specifically
+                Console.WriteLine($"Database 'FAI' already exists. Skipping initial creation attempt.");
+                // The application should continue as Migrate() would have already
+                // checked for and applied pending migrations if the database was accessible.
+            }
+            catch (Exception ex)
+            {
+                // Log other potential database connection/migration errors
+                Console.WriteLine($"An error occurred while applying migrations: {ex.Message}");
+                throw; // Re-throw the exception if it's not the "database exists" error
+            }
         }
-    }
-    // Debug: log all users in database
-    foreach (var u in context.Users)
-    {
-        Console.WriteLine($"[SEED] User: {u.Username ?? "null"}, PasswordHash: {u.Password ?? "null"}, IsAdmin: {u.IsAdmin}");
+
+        // Seed default admin user: use env vars or fallback to known credentials
+        var adminUsernameEnv = Environment.GetEnvironmentVariable("ADMIN_USERNAME");
+        var adminPasswordEnv = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
+        // In Development ignore ADMIN_USERNAME/PASSWORD env vars and always seed fallback default
+        if (!env.IsDevelopment() // Use env.IsDevelopment()
+            && !string.IsNullOrEmpty(adminUsernameEnv)
+            && !string.IsNullOrEmpty(adminPasswordEnv))
+        {
+            if (!context.Users.Any(u => u.Username == adminUsernameEnv))
+            {
+                context.Users.Add(new FAI.API.Data.Models.User
+                {
+                    Username = adminUsernameEnv,
+                    Password = FAI.API.Utils.PasswordHasher.Hash(adminPasswordEnv),
+                    IsAdmin = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+                context.SaveChanges();
+            }
+        }
+        else
+        {
+            // Fallback default admin: username=admin, password=letmein123 (stored as plain-text for development)
+            const string defaultUser = "admin";
+            const string defaultPass = "letmein123";
+            if (!context.Users.Any())
+            {
+                context.Users.Add(new FAI.API.Data.Models.User
+                {
+                    Username = defaultUser,
+                    // Store plain-text for development-only fallback to simplify login
+                    Password = defaultPass,
+                    IsAdmin = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+                context.SaveChanges();
+            }
+        }
+        // Debug: log all users in database
+        foreach (var u in context.Users)
+        {
+            Console.WriteLine($"[SEED] User: {u.Username ?? "null"}, PasswordHash: {u.Password ?? "null"}, IsAdmin: {u.IsAdmin}");
+        }
     }
 }
 
@@ -243,9 +360,18 @@ app.UseSwaggerUI(c =>
 
 // Serve React UI from wwwroot
 app.UseDefaultFiles();
-    app.UseStaticFiles();
-    // Enable CORS middleware
-    app.UseCors("AllowAll");
+app.UseStaticFiles();
+
+// Serve uploaded files from the /uploads path
+app.UseStaticFiles(new StaticFileOptions
+{
+    RequestPath = "/uploads",
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+        System.IO.Path.Combine(app.Environment.WebRootPath, "uploads"))
+});
+
+// Enable CORS middleware
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -11,6 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using FAI.API.Data;
 using FAI.API.Data.Models;
+using FAI.API.Utils; // Added using directive for PasswordHasher
+using Microsoft.AspNetCore.Hosting; // Added using directive for UseContentRoot
+using Microsoft.AspNetCore.TestHost; // Added using directive for ConfigureTestServices
 
 namespace FAI.IntegrationTests
 {
@@ -22,27 +25,60 @@ namespace FAI.IntegrationTests
         {
             // Ensure a valid JWT secret for signing tokens in tests
             Environment.SetEnvironmentVariable("JWT_SECRET", "abcdefghijklmnopqrstuvwxyzABCDEFG");
-            _client = factory.WithWebHostBuilder(builder =>
+
+            // Explicitly set the content root for the WebApplicationFactory
+            var projectDir = "/home/shared/dev/foldsandflavors/my-store/server"; // Path to the FAI.API project directory
+            factory.WithWebHostBuilder(builder =>
             {
-                builder.ConfigureServices(services =>
+                builder.UseContentRoot(projectDir);
+                builder.UseEnvironment("IntegrationTesting"); // Set a custom environment for integration tests
+                builder.ConfigureTestServices(services =>
                 {
-                    var descriptor = services.SingleOrDefault(
-                        d => d.ServiceType == typeof(DbContextOptions<FAIContext>));
-                    if (descriptor != null) services.Remove(descriptor);
-                    services.AddDbContext<FAIContext>(options =>
+                    // Find and remove the existing FAIContext service descriptor
+                    var contextDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(FAIContext));
+                    if (contextDescriptor != null)
                     {
-                        options.UseInMemoryDatabase("TestDb");
+                        services.Remove(contextDescriptor);
+                    }
+
+                    // Add FAIContext using InMemoryDatabase for testing
+                    services.AddTransient<FAIContext>(sp =>
+                    {
+                        var options = new DbContextOptionsBuilder<FAIContext>()
+                            .UseInMemoryDatabase("TestDbForAuth") // Use a unique name for the in-memory database
+                            .Options;
+                        return new FAIContext(options);
                     });
 
+                    // Build the service provider
                     var sp = services.BuildServiceProvider();
-                    using var scope = sp.CreateScope();
-                    var context = scope.ServiceProvider.GetRequiredService<FAIContext>();
-                    context.Database.EnsureDeleted();
-                    context.Database.EnsureCreated();
-                    context.Users.Add(new User { Id = 1, Username = "user1", Password = "pass1", IsAdmin = false });
-                    context.SaveChanges();
+
+                    // Create a scope to obtain a DbContext instance
+                    using (var scope = sp.CreateScope())
+                    {
+                        var scopedServices = scope.ServiceProvider;
+                        var context = scopedServices.GetRequiredService<FAIContext>();
+
+                        // Ensure the database is created and seeded
+                        Console.WriteLine("Ensuring database is deleted...");
+                        context.Database.EnsureDeleted(); // Start with a clean database for each test run
+                        Console.WriteLine("Ensuring database is created...");
+                        context.Database.EnsureCreated();
+                        Console.WriteLine("Database ensured.");
+
+                        // Seed test data
+                        // Ensure test user 'user1' is always seeded for this test fixture
+                        Console.WriteLine("Seeding test user 'user1'...");
+                        // Hash the password before storing it
+                        var hashedPasswordForTestSetup = PasswordHasher.Hash("pass1"); // Renamed variable
+                        context.Users.Add(new User { Id = 1, Username = "user1", Password = hashedPasswordForTestSetup, IsAdmin = false }); // Use renamed variable
+                        context.SaveChanges();
+                        Console.WriteLine("Test user 'user1' seeded.");
+                    }
                 });
-            }).CreateClient();
+            });
+
+            _client = factory.CreateClient(); // Keep this line to assign the HttpClient
         }
 
         [Fact]
