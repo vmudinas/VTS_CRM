@@ -52,7 +52,7 @@ This application is a full-stack solution with three main components:
 ```
 ┌─────────────────┐      ┌──────────────────┐      ┌─────────────────┐
 │                 │      │                  │      │                 │
-│  React Frontend │──────▶  ASP.NET Core   │──────▶  SQL Server DB  │
+│  React Frontend │──────▶  ASP.NET Core    │──────▶  SQL Server DB  │
 │  (TypeScript)   │◀──────  Web API         │◀──────  (Docker)       │
 │                 │      │                  │      │                 │
 └─────────────────┘      └──────────────────┘      └─────────────────┘
@@ -187,10 +187,12 @@ docker volume rm mssql-data
 
 GitHub Pages **cannot** host dynamic server-side applications like:
 - Docker containers
-- SQL Server or any database
+- SQL Server or any database (including PostgreSQL)
 - ASP.NET Core API or any backend server
 
 GitHub Pages is a static file hosting service only, suitable for frontend applications built with HTML, CSS, and JavaScript.
+
+**Note on PostgreSQL:** This application is configured to use SQL Server by default, not PostgreSQL. However, the principle remains the same - GitHub Pages cannot host any database system. If you prefer PostgreSQL, you would need to modify the backend code and deploy it to a server that supports PostgreSQL.
 
 ### Options for Full Stack Deployment
 
