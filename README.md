@@ -97,10 +97,16 @@ npm test
 ### GitHub Pages Deployment
 The frontend application is deployed to GitHub Pages and can be accessed at https://vmudinas.github.io/VTS_CRM/. 
 
-Automatic deployment happens via GitHub Actions when changes are pushed to the main branch. Manually trigger deployment with:
+Automatic deployment happens via GitHub Actions when changes are pushed to the main branch. The workflow is defined in `.github/workflows/deploy.yml`.
+
+You can also manually trigger the GitHub Actions deployment from the Actions tab in the repository.
+
+Alternatively, deploy manually with:
 ```bash
 npm run deploy
 ```
+
+This uses the gh-pages package to deploy the build folder to the gh-pages branch.
 
 ## Docker & Deployment
 The entire app can be run via Docker Compose. First, copy `.env.example` to `.env` and customize your passwords.
