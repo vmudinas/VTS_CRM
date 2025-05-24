@@ -8,6 +8,9 @@ module.exports = defineConfig({
     },
     supportFile: 'cypress/support/e2e.js',
     specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
+    screenshotOnRunFailure: true,
   },
-  video: false
+  video: false,
+  screenshotsFolder: 'cypress/screenshots',
+  trashAssetsBeforeRuns: true
 });

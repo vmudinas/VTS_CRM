@@ -2,11 +2,15 @@ describe('Admin Dashboard - Login and Product Management', () => {
   it('allows admin to login and add a new product', () => {
     // Visit the admin page
     cy.visit('/admin');
+    cy.screenshot('admin-page-loaded');
 
     // Perform login
     cy.get('#username').type('admin');
     cy.get('#password').type('letmein123');
     cy.contains('Login').click();
+    
+    // Debugging: Capture screenshot after login
+    cy.screenshot('after-login');
 
     // Verify that the Products Management tab is visible
     cy.contains('Products Management').should('be.visible');
@@ -26,9 +30,11 @@ describe('Admin Dashboard - Login and Product Management', () => {
 
     // Submit the form
     cy.contains('Save Product').click();
+    cy.screenshot('after-save-product');
 
     // Verify success message and new product appears in the list
     cy.contains('Product created successfully').should('be.visible');
     cy.contains('Test Cypress Product').should('be.visible');
+    cy.screenshot('product-verification');
   });
 });

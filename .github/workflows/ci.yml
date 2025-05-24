@@ -43,7 +43,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-npm-cache-e2e-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}-${{ github.job }}
+          key: ${{ runner.os }}-npm-cache-e2e-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}-${{ github.run_id }}
           restore-keys: |
             ${{ runner.os }}-npm-cache-e2e-${{ matrix.node-version }}-
             ${{ runner.os }}-npm-cache-e2e-
