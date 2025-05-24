@@ -6,6 +6,7 @@ Full-stack web application featuring:
   - ASP.NET Core 9 backend API with Entity Framework Core
   - SQL Server database (via Docker)
   - Fully containerized via Docker Compose
+  - Deployed to GitHub Pages at https://vmudinas.github.io/VTS_CRM/
 
 ## Table of Contents
   1. [Overview](#overview)
@@ -18,6 +19,7 @@ Full-stack web application featuring:
   5. [Frontend (UI)](#frontend-ui)
      - [Running Locally](#running-locally-1)
      - [Tests](#tests-1)
+     - [GitHub Pages Deployment](#github-pages-deployment)
   6. [Docker & Deployment](#docker--deployment)
   7. [Environment Variables](#environment-variables)
   8. [License](#license)
@@ -90,6 +92,14 @@ The UI will launch at http://localhost:3000 and proxy API calls to the backend.
 React unit tests (Jest):
 ```bash
 npm test
+```
+
+### GitHub Pages Deployment
+The frontend application is deployed to GitHub Pages and can be accessed at https://vmudinas.github.io/VTS_CRM/. 
+
+Automatic deployment happens via GitHub Actions when changes are pushed to the main branch. Manually trigger deployment with:
+```bash
+npm run deploy
 ```
 
 ## Docker & Deployment
