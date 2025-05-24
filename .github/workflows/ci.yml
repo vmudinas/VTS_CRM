@@ -43,7 +43,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-npm-cache-e2e-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-npm-cache-e2e-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}-${{ github.job }}
           restore-keys: |
             ${{ runner.os }}-npm-cache-e2e-${{ matrix.node-version }}-
             ${{ runner.os }}-npm-cache-e2e-
@@ -54,3 +54,4 @@ jobs:
           start: npm start
           wait-on: http://localhost:3000
           wait-on-timeout: 120000
+          spec: "cypress/integration/**/*.spec.{js,jsx,ts,tsx}"
