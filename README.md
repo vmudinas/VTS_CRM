@@ -10,25 +10,67 @@ Full-stack web application featuring:
 
 ## Table of Contents
   1. [Overview](#overview)
-  2. [Prerequisites](#prerequisites)
-  3. [Directory Structure](#directory-structure)
-  4. [Backend (API)](#backend-api)
+  2. [How This Application Works](#how-this-application-works)
+  3. [Prerequisites](#prerequisites)
+  4. [Directory Structure](#directory-structure)
+  5. [Backend (API)](#backend-api)
      - [Configuration](#configuration)
      - [Running Locally](#running-locally)
      - [Tests](#tests)
-  5. [Frontend (UI)](#frontend-ui)
+  6. [Frontend (UI)](#frontend-ui)
      - [Running Locally](#running-locally-1)
      - [Tests](#tests-1)
      - [GitHub Pages Deployment](#github-pages-deployment)
-  6. [Docker & Deployment](#docker--deployment)
-  7. [Environment Variables](#environment-variables)
-  8. [License](#license)
+  7. [Docker & Deployment](#docker--deployment)
+  8. [Full Stack Deployment Considerations](#full-stack-deployment-considerations)
+  9. [Environment Variables](#environment-variables)
+  10. [License](#license)
 
 ## Overview
 `Folds & Flavors` is a sample online store application. It provides product listings, shopping cart, order management, and messaging endpoints. The application is split into:
   - **Frontend**: SPA built with React and Tailwind CSS
   - **Backend API**: ASP.NET Core Web API using EF Core for data access
   - **Database**: SQL Server (Docker)
+
+## How This Application Works
+
+This application is a full-stack solution with three main components:
+
+1. **React Frontend**: A single-page application (SPA) built with React and TypeScript that provides the user interface for the store. This is what gets deployed to GitHub Pages.
+
+2. **ASP.NET Core API**: A RESTful API that handles business logic, data processing, and database operations. It provides endpoints for:
+   - Product management
+   - Order processing
+   - User authentication
+   - File uploads
+   - Messages and notifications
+
+3. **SQL Server Database**: Stores all application data including products, orders, users, and system logs.
+
+### Architecture Overview:
+
+```
+┌─────────────────┐      ┌──────────────────┐      ┌─────────────────┐
+│                 │      │                  │      │                 │
+│  React Frontend │──────▶  ASP.NET Core    │──────▶  SQL Server DB  │
+│  (TypeScript)   │◀──────  Web API         │◀──────  (Docker)       │
+│                 │      │                  │      │                 │
+└─────────────────┘      └──────────────────┘      └─────────────────┘
+```
+
+### Data Flow:
+1. The React frontend makes HTTP requests to the API endpoints
+2. The API processes these requests, performs business logic
+3. The API communicates with the database using Entity Framework Core
+4. Results are returned to the frontend as JSON responses
+
+### Authentication:
+- The application uses JWT (JSON Web Tokens) for authentication
+- Tokens are stored in the browser's localStorage
+- Protected API endpoints verify the token before processing requests
+
+### Communication:
+All communication between the frontend and backend happens via RESTful API calls. The frontend is configured to proxy API requests in development mode or use relative paths in production.
 
 ## Prerequisites
 - [.NET 9 SDK](https://dotnet.microsoft.com/download)
@@ -95,7 +137,14 @@ npm test
 ```
 
 ### GitHub Pages Deployment
+
 The frontend application is deployed to GitHub Pages and can be accessed at https://vmudinas.github.io/VTS_CRM/. 
+
+**Important Note:** GitHub Pages only hosts the React frontend portion of the application. It does not host the backend API or database since GitHub Pages only supports static content. This means:
+
+- When accessing the application via GitHub Pages, you're only getting the frontend UI
+- API calls from the GitHub Pages-hosted frontend will fail unless you're also running the backend API separately
+- The GitHub Pages deployment is primarily for demonstration purposes of the UI
 
 Automatic deployment happens via GitHub Actions when changes are pushed to the main branch. The workflow is defined in `.github/workflows/deploy.yml`.
 
@@ -131,6 +180,58 @@ The SQL Server data is stored in a Docker named volume (`mssql-data`) defined in
 docker-compose down -v
 docker volume rm mssql-data
 ```
+
+## Full Stack Deployment Considerations
+
+### GitHub Pages Limitation
+
+GitHub Pages **cannot** host dynamic server-side applications like:
+- Docker containers
+- SQL Server or any database (including PostgreSQL)
+- ASP.NET Core API or any backend server
+
+GitHub Pages is a static file hosting service only, suitable for frontend applications built with HTML, CSS, and JavaScript.
+
+**Note on PostgreSQL:** This application is configured to use SQL Server by default, not PostgreSQL. However, the principle remains the same - GitHub Pages cannot host any database system. If you prefer PostgreSQL, you would need to modify the backend code and deploy it to a server that supports PostgreSQL.
+
+### Options for Full Stack Deployment
+
+To deploy the complete application with working frontend, API and database, you would need:
+
+#### Option 1: Cloud Service Providers
+- **Frontend**: Continue using GitHub Pages
+- **Backend & Database**: Deploy to a cloud service like:
+  - Azure App Service + Azure SQL Database
+  - AWS Elastic Beanstalk + RDS
+  - Google Cloud Run + Cloud SQL
+  - Heroku with a PostgreSQL add-on
+
+#### Option 2: Docker-Based Hosting
+- Deploy the entire Docker Compose setup to:
+  - Digital Ocean with Docker support
+  - AWS ECS (Elastic Container Service)
+  - Azure Container Instances
+  - Google Cloud Run
+
+#### Option 3: Self-Hosted
+- **Frontend**: Can still use GitHub Pages
+- **Backend & Database**: Deploy to your own server (VPS, dedicated server, or on-premises hardware)
+  - Configure proper networking and security
+  - Set up a domain name and SSL certificates
+  - Configure reverse proxy (Nginx/Apache) for the API
+
+### Connecting Frontend to Backend in Production
+
+For the deployed GitHub Pages frontend to communicate with a separately hosted backend:
+
+1. Set up CORS on the backend to allow requests from the GitHub Pages domain
+2. Update the API service in the frontend to point to your deployed API URL
+3. Ensure your API is accessible via HTTPS for security
+
+### Development vs. Production
+
+- **Development**: Use the local Docker Compose setup or run components separately
+- **Production**: Choose one of the deployment options above based on your requirements and budget
 
 ## Environment Variables
 - Copy `.env.example` to a `.env` file in the project root, then set your passwords:
