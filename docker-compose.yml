@@ -6,8 +6,8 @@ services:
     user: root
     # container_name removed to let Compose manage names and avoid conflicts
     environment:
-      # Temporarily hardcoding SA_PASSWORD to ensure it's picked up during initial setup
-      SA_PASSWORD: "Kla1peda17!"
+      # Use environment variable for SA_PASSWORD
+      SA_PASSWORD: "${SA_PASSWORD}"
       ACCEPT_EULA: "Y"
       MSSQL_PID: "Developer"
     # Expose SQL Server port on the internal Docker network only to avoid host port conflicts
@@ -37,9 +37,9 @@ services:
       DB_NAME: FAI
       DB_USER: sa
       DB_PASSWORD: "${SA_PASSWORD}"
-      JWT_SECRET: "your-secret-key"
-      ADMIN_USERNAME: "admin"
-      ADMIN_PASSWORD: "letmein123"
+      JWT_SECRET: "${JWT_SECRET}"
+      ADMIN_USERNAME: "${ADMIN_USERNAME}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
       ASPNETCORE_URLS: http://+:4000
     ports:
       - "4000:4000"
