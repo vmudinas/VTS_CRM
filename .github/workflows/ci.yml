@@ -15,6 +15,14 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Cache Node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-cache-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-cache-${{ matrix.node-version }}-
+            ${{ runner.os }}-npm-cache-
       - run: npm ci
       - run: npm test -- --watchAll=false
       - run: npm run build
@@ -22,11 +30,23 @@ jobs:
   e2e:
     needs: build-test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
         with:
-          node-version: '20.x'
+          node-version: ${{ matrix.node-version }}
+      - name: Cache Node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-cache-e2e-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-npm-cache-e2e-${{ matrix.node-version }}-
+            ${{ runner.os }}-npm-cache-e2e-
       - run: npm ci
       - name: Run Cypress tests
         uses: cypress-io/github-action@v5
@@ -34,3 +54,4 @@ jobs:
           start: npm start
           wait-on: http://localhost:3000
           wait-on-timeout: 120000
+          spec: "cypress/e2e/**/*.cy.{js,jsx,ts,tsx}"
