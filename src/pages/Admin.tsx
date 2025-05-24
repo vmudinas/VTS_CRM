@@ -1047,7 +1047,6 @@ const Admin: React.FC = () => {
                   // Use Axios for upload progress
                   const axios = (window as any).axios || (await import("axios")).default;
                   apiService.setToken(token);
-                  let res;
                   const config = {
                     headers: { Authorization: `Bearer ${token}` },
                     onUploadProgress: (progressEvent: ProgressEvent) => {
@@ -1057,9 +1056,9 @@ const Admin: React.FC = () => {
                     }
                   };
                   if (selectedVideo) {
-                    res = await axios.put(`/api/videos/${selectedVideo.id}`, formData, config);
+                    await axios.put(`/api/videos/${selectedVideo.id}`, formData, config);
                   } else {
-                    res = await axios.post('/api/videos', formData, config);
+                    await axios.post('/api/videos', formData, config);
                   }
                   setShowVideoModal(false);
                   setSuccessMessage(selectedVideo ? 'Video updated successfully' : 'Video uploaded successfully');

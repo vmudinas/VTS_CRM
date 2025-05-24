@@ -21,6 +21,7 @@ enum ReactionType {
     Dislike = 1
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface VideoReaction {
     id: number;
     userId: number;
