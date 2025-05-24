@@ -54,4 +54,4 @@ jobs:
           start: npm start
           wait-on: http://localhost:3000
           wait-on-timeout: 120000
-          spec: "cypress/integration/**/*.spec.{js,jsx,ts,tsx}"
+          spec: "cypress/e2e/**/*.cy.{js,jsx,ts,tsx}"
