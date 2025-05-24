@@ -59,7 +59,7 @@ The backend is implemented in `server/`:
   - `DB_PORT` (default: `1433`)
   - `DB_NAME`   (default: `FAI`)
   - `DB_USER`   (default: `sa`)
-  - `DB_PASSWORD` (default: `Kla1peda17!`)
+  - `DB_PASSWORD` (default: ``)
 - Authentication/Authorization has been removed: all endpoints are open.
 
 ### Running Locally
