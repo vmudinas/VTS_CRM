@@ -1,5 +1,5 @@
 
-# Folds & Flavors (My Store)
+# VTS Store (CRM)
 
 Full-stack web application featuring:
   - React frontend (TypeScript)
