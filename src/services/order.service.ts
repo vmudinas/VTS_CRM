@@ -6,7 +6,19 @@
 import apiService from './api.service';
 
 // Order status type
-export type OrderStatus = 'pending' | 'completed' | 'cancelled' | 'WaitingForBitcoinPayment' | 'BitcoinPaid' | 'underpaid' | 'overpaid';
+export type OrderStatus = 
+  'pending' | 
+  'completed' | 
+  'cancelled' | 
+  'WaitingForBitcoinPayment' | 
+  'BitcoinPaid' | 
+  'underpaid' | 
+  'overpaid' | 
+  'WaitingForPayPal' |
+  'PayPalPaid' |
+  'WaitingForZelle' |
+  'ZellePaid' |
+  'ApplePayPaid';
 
 // Order item interface
 export interface OrderItem {
@@ -86,6 +98,36 @@ class OrderService {
    */
   async generateBitcoinPayment(id: number): Promise<{ bitcoinAddress: string; bitcoinAmount: number }> {
     return apiService.post<{ bitcoinAddress: string; bitcoinAmount: number }>(`/orders/${id}/generate-bitcoin-payment`, {});
+  }
+
+  /**
+   * Processes a PayPal payment for an order
+   * @param id Order ID
+   * @param paypalDetails PayPal transaction details
+   * @returns Promise with the result of the PayPal payment process
+   */
+  async processPayPalPayment(id: number, paypalDetails: any): Promise<{ success: boolean; transactionId?: string }> {
+    return apiService.post<{ success: boolean; transactionId?: string }>(`/orders/${id}/process-paypal-payment`, paypalDetails);
+  }
+
+  /**
+   * Records a Zelle payment for manual verification
+   * @param id Order ID
+   * @param referenceNumber Zelle reference number provided by the customer
+   * @returns Promise with the result of recording the payment
+   */
+  async recordZellePayment(id: number, referenceNumber: string): Promise<{ success: boolean; message: string }> {
+    return apiService.post<{ success: boolean; message: string }>(`/orders/${id}/record-zelle-payment`, { referenceNumber });
+  }
+
+  /**
+   * Processes an Apple Pay payment for an order
+   * @param id Order ID
+   * @param applePayDetails Apple Pay transaction details
+   * @returns Promise with the result of the Apple Pay payment process
+   */
+  async processApplePayment(id: number, applePayDetails: any): Promise<{ success: boolean; transactionId?: string }> {
+    return apiService.post<{ success: boolean; transactionId?: string }>(`/orders/${id}/process-apple-pay`, applePayDetails);
   }
 }
 
