@@ -12,11 +12,10 @@ import {
 const Donate: React.FC = () => {
   const [amount, setAmount] = useState<number>(5);
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethodType>('standard');
-  const [donationId, setDonationId] = useState<number>(Math.floor(Math.random() * 1000000)); // Mock donation ID
-  const [cryptoAddress, setCryptoAddress] = useState<string>("1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"); // Example Bitcoin address
+  const [donationId] = useState<number>(Math.floor(Math.random() * 1000000)); // Mock donation ID
+  const [cryptoAddress] = useState<string>("1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"); // Example Bitcoin address
   
   const {
-    paymentMethod,
     setPaymentMethod,
     paymentStatus,
     setPaymentStatus,

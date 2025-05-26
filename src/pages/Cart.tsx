@@ -3,10 +3,8 @@ import { Link } from 'react-router-dom';
 import { Product } from '../App';
 import { orderService } from '../services';
 import PaymentService from '../services/payment.service';
-import { QRCodeCanvas } from 'qrcode.react';
-import { PaymentProvider, usePayment, PaymentMethodType, PaymentStatusType } from '../context/PaymentContext';
+import { PaymentProvider, PaymentMethodType, PaymentStatusType } from '../context/PaymentContext';
 import { 
-  ApplePayButton, 
   PayPalButton, 
   ZelleInstructions, 
   CryptoPayment, 
