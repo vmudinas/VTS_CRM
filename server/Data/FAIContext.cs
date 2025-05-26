@@ -19,6 +19,7 @@ namespace FAI.API.Data
         public DbSet<Category> Categories { get; set; } = null!;
         public DbSet<PlaybackHistory> PlaybackHistory { get; set; } = null!; // Add DbSet for PlaybackHistory
         public DbSet<VideoReaction> VideoReactions { get; set; } = null!; // Add DbSet for VideoReaction
+        public DbSet<PaymentRecord> PaymentRecords { get; set; } = null!; // Add DbSet for PaymentRecord
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -31,6 +32,7 @@ namespace FAI.API.Data
             modelBuilder.Entity<Video>().ToTable("Videos");
             modelBuilder.Entity<PlaybackHistory>().ToTable("PlaybackHistory"); // Map PlaybackHistory to table
             modelBuilder.Entity<VideoReaction>().ToTable("VideoReactions"); // Map VideoReaction to table
+            modelBuilder.Entity<PaymentRecord>().ToTable("PaymentRecords"); // Map PaymentRecord to table
 
             modelBuilder.Entity<OrderItem>()
                 .HasOne(oi => oi.Order)
@@ -87,6 +89,12 @@ namespace FAI.API.Data
             modelBuilder.Entity<ContactMessage>().Property(m => m.CreatedAt).HasDefaultValueSql("GETDATE()");
             modelBuilder.Entity<ExceptionLog>().ToTable("ExceptionLogs");
             modelBuilder.Entity<ExceptionLog>().Property(e => e.Timestamp).HasDefaultValueSql("GETDATE()");
+            
+            // Configure PaymentRecord default values
+            modelBuilder.Entity<PaymentRecord>().Property(p => p.CreatedAt).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<PaymentRecord>().Property(p => p.UpdatedAt).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<PaymentRecord>().Property(p => p.ProcessedAt).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<PaymentRecord>().Property(p => p.Status).HasDefaultValue("pending");
         }
     }
 }

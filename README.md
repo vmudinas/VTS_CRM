@@ -24,7 +24,8 @@ Full-stack web application featuring:
   7. [Docker & Deployment](#docker--deployment)
   8. [Full Stack Deployment Considerations](#full-stack-deployment-considerations)
   9. [Environment Variables](#environment-variables)
-  10. [License](#license)
+  10. [Payment Methods Configuration](#payment-methods-configuration)
+  11. [License](#license)
 
 ## Overview
 `Folds & Flavors` is a sample online store application. It provides product listings, shopping cart, order management, and messaging endpoints. The application is split into:
@@ -244,6 +245,128 @@ For the deployed GitHub Pages frontend to communicate with a separately hosted b
 
 ## License
 MIT
+
+## Payment Methods Configuration
+
+The application supports multiple payment methods that require specific configuration to work correctly in production environments:
+
+### Apple Pay (Stripe Payment Request API)
+
+To configure Apple Pay with Stripe:
+
+1. **Stripe Account Setup**:
+   - Create a [Stripe account](https://stripe.com/docs/development)
+   - Obtain a Stripe publishable key and secret key
+
+2. **Environment Variables**:
+   - Add to your `.env` file:
+     ```
+     REACT_APP_STRIPE_PUBLISHABLE_KEY=your_publishable_key
+     ```
+
+3. **Apple Developer Account Requirements**:
+   - Register as an Apple Developer
+   - Configure your domain in the [Apple Developer Portal](https://developer.apple.com/)
+   - Generate and download a merchant identity certificate
+
+4. **Domain Verification**:
+   - Add Apple Pay domain association file to your website's `.well-known` directory
+   - Verify your domain with Apple
+
+5. **Stripe Dashboard Configuration**:
+   - Add your domain to the list of approved domains in Stripe Dashboard
+   - Upload your Apple merchant identity certificate to Stripe
+
+### PayPal
+
+To set up PayPal payments:
+
+1. **PayPal Developer Account**:
+   - Create a [PayPal Developer account](https://developer.paypal.com/)
+   - Create a PayPal application to get client ID and secret
+
+2. **Environment Variables**:
+   - Add to your `.env` file:
+     ```
+     REACT_APP_PAYPAL_CLIENT_ID=your_client_id
+     ```
+
+3. **Configure PayPal SDK**:
+   - The application is already set up to use the PayPal JavaScript SDK
+   - Update the `PAYPAL_CLIENT_ID` in `src/components/payment/PayPalButton.tsx` with your actual client ID (or use the environment variable)
+
+4. **Webhooks (Optional)**:
+   - For production, configure webhooks in the PayPal Developer Dashboard
+   - Set up endpoints to receive payment event notifications
+   - Update the backend API to handle these webhook events
+
+### Zelle
+
+Zelle integration requires manual setup since Zelle doesn't provide a direct API:
+
+1. **Zelle Business Account**:
+   - Register for a [Zelle Business Account](https://www.zellepay.com/business)
+   - Ensure your business bank supports Zelle
+
+2. **Configuration**:
+   - Update the email and phone number in `src/components/payment/ZelleInstructions.tsx` with your actual Zelle-registered information
+
+3. **Backend Implementation**:
+   - Add an API endpoint in your backend to verify and process Zelle payments
+   - Implement a database table to track Zelle payment references
+   - Update the `confirmZellePayment` function in `src/context/PaymentContext.tsx` to call your backend API
+
+4. **Manual Verification Process**:
+   - Set up a process to manually verify Zelle payments against your bank account
+   - Consider implementing an admin dashboard for payment reconciliation
+
+### Cryptocurrency Payments
+
+To enable cryptocurrency payments:
+
+1. **Wallet Setup**:
+   - Create wallets for each cryptocurrency you want to accept
+   - Generate static addresses or integrate with an API for dynamic address generation
+
+2. **Configuration**:
+   - Update the example crypto address in the `Donate.tsx` component with your actual wallet addresses
+   - If supporting multiple cryptocurrencies, extend the `cryptoType` options in `CryptoPayment.tsx`
+
+3. **Payment Verification**:
+   - Implement a backend service to monitor blockchain transactions
+   - Connect to blockchain nodes or use a third-party service like [BlockCypher API](https://www.blockcypher.com/dev/) or [Coinbase Commerce](https://commerce.coinbase.com/)
+
+4. **Environment Variables**:
+   - Add to your `.env` file:
+     ```
+     REACT_APP_BTC_ADDRESS=your_bitcoin_address
+     REACT_APP_ETH_ADDRESS=your_ethereum_address
+     # Add more for other cryptocurrencies as needed
+     ```
+
+5. **Optional: Third-Party Services**:
+   - Consider integrating with services like BitPay, Coinbase Commerce, or CoinGate for easier cryptocurrency payment processing
+   - Update the `trackPayment` function in `PaymentContext.tsx` to communicate with these services
+
+### Security Considerations for All Payment Methods
+
+1. **SSL/TLS Encryption**:
+   - Ensure your website uses HTTPS
+   - Obtain and configure an SSL certificate for your domain
+
+2. **PCI Compliance**:
+   - When handling credit card information, ensure PCI DSS compliance
+   - Stripe and PayPal handle most PCI compliance requirements automatically
+
+3. **Data Protection**:
+   - Implement proper data encryption for sensitive information
+   - Follow GDPR and other regional data protection regulations
+
+4. **Testing**:
+   - Always test payments in sandbox/test mode before going live
+   - Each payment provider offers test credentials for development
+
+For further assistance with payment integration, consult each platform's developer documentation.
 
 ## Available Scripts
 

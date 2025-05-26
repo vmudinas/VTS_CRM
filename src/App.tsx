@@ -6,6 +6,7 @@ import Contact from './pages/Contact';
 import Admin from './pages/Admin';
 import Cart from './pages/Cart';
 import VideoPage from './pages/Video';
+import Donate from './pages/Donate';
 // Product interface describing the structure returned by the API
 export interface Product {
   id?: number;
@@ -37,6 +38,7 @@ function App() {
           <Link to="/videos" className="hover:underline">Videos</Link>
           <Link to="/contact" className="hover:underline">Contact</Link>
           <Link to="/admin" className="hover:underline">Admin</Link>
+          <Link to="/donate" className="hover:underline">Donate</Link>
           <Link to="/cart" className="hover:underline">Cart ({cartItems.length})</Link>
         </nav>
         <main className="flex-grow">
@@ -46,6 +48,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} />} />
+            <Route path="/donate" element={<Donate />} />
           </Routes>
         </main>
       </div>
