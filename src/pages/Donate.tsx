@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { usePayment, PaymentMethodType } from '../context/PaymentContext';
+import PaymentService from '../services/payment.service';
 import {
   ApplePayButton,
   PayPalButton,
@@ -20,7 +21,8 @@ const Donate: React.FC = () => {
     paymentStatus,
     setPaymentStatus,
     isProcessingPayment,
-    confirmZellePayment
+    confirmZellePayment,
+    recordPayment
   } = usePayment();
 
   const handlePaymentMethodChange = (method: PaymentMethodType) => {
@@ -34,8 +36,22 @@ const Donate: React.FC = () => {
     console.log(`Processing ${amount} donation with ${selectedMethod} method`);
   };
 
-  const handlePaymentSuccess = (paymentDetails: any) => {
+  const handlePaymentSuccess = async (paymentDetails: any) => {
     console.log('Payment successful:', paymentDetails);
+    
+    // Record the successful payment
+    const paymentId = await recordPayment(
+      amount, 
+      selectedMethod, 
+      'Donation', 
+      undefined
+    );
+    
+    if (paymentId && selectedMethod !== 'zelle') {
+      // Update payment status for methods that complete immediately
+      await PaymentService.updatePaymentStatus(paymentId, 'completed');
+    }
+    
     setPaymentStatus('success');
     // Show success message or redirect
   };

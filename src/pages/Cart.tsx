@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Product } from '../App';
 import { orderService } from '../services';
+import PaymentService from '../services/payment.service';
 import { QRCodeCanvas } from 'qrcode.react';
 import { PaymentProvider, usePayment, PaymentMethodType, PaymentStatusType } from '../context/PaymentContext';
 import { 
@@ -122,6 +123,18 @@ const Cart: React.FC<CartProps> = ({ cartItems, setCartItems }) => {
             const bitcoinPaymentDetails = await orderService.generateBitcoinPayment(createdOrderId);
             setBitcoinAddress(bitcoinPaymentDetails.bitcoinAddress);
             setBitcoinAmount(bitcoinPaymentDetails.bitcoinAmount);
+            
+            // Record the payment in the database
+            await PaymentService.recordPayment({
+              paymentType: paymentMethod,
+              amount: totalAmount,
+              description: `Order #${createdOrderId} payment`,
+              orderId: createdOrderId,
+              userName: customerName,
+              userEmail: customerEmail,
+              status: 'pending'
+            });
+            
             setCartItems([]); // Clear cart after order creation
           } catch (bitcoinErr: any) {
             console.error('Error generating Bitcoin payment:', bitcoinErr);
@@ -134,22 +147,69 @@ const Cart: React.FC<CartProps> = ({ cartItems, setCartItems }) => {
           // PayPal payment is handled by the PayPal button component
           // We'll just set the status and clear the cart
           setStatus('waitingForPayPal');
+          
+          // Record the payment in the database
+          await PaymentService.recordPayment({
+            paymentType: 'paypal',
+            amount: totalAmount,
+            description: `Order #${createdOrderId} payment via PayPal`,
+            orderId: createdOrderId,
+            userName: customerName,
+            userEmail: customerEmail,
+            status: 'pending'
+          });
+          
           setCartItems([]);
           break;
           
         case 'zelle':
           // Zelle payment requires manual confirmation
           setStatus('waitingForZelle');
+          
+          // Record the payment in the database
+          await PaymentService.recordPayment({
+            paymentType: 'zelle',
+            amount: totalAmount,
+            description: `Order #${createdOrderId} payment via Zelle`,
+            orderId: createdOrderId,
+            userName: customerName,
+            userEmail: customerEmail,
+            status: 'pending'
+          });
+          
           setCartItems([]);
           break;
           
         case 'applePay':
           // Apple Pay is processed on the client side
           setStatus('processingApplePay');
+          
+          // Record the payment in the database
+          await PaymentService.recordPayment({
+            paymentType: 'applePay',
+            amount: totalAmount,
+            description: `Order #${createdOrderId} payment via Apple Pay`,
+            orderId: createdOrderId,
+            userName: customerName,
+            userEmail: customerEmail,
+            status: 'pending'
+          });
+          
           setCartItems([]);
           break;
           
         default: // Standard payment
+          // Record the payment in the database for standard payment
+          await PaymentService.recordPayment({
+            paymentType: 'standard',
+            amount: totalAmount,
+            description: `Order #${createdOrderId} standard payment`,
+            orderId: createdOrderId,
+            userName: customerName,
+            userEmail: customerEmail,
+            status: 'pending'
+          });
+          
           setStatus('success');
           setCartItems([]); // Clear cart after order creation
           break;
