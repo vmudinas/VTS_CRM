@@ -39,9 +39,11 @@ const ButtonWrapper: React.FC<PayPalButtonProps> = ({ amount, onSuccess, onError
           }}
           createOrder={(data, actions) => {
             return actions.order.create({
+              intent: "CAPTURE",
               purchase_units: [
                 {
                   amount: {
+                    currency_code: "USD",
                     value: amount.toFixed(2),
                   },
                 },
@@ -53,7 +55,7 @@ const ButtonWrapper: React.FC<PayPalButtonProps> = ({ amount, onSuccess, onError
               if (actions.order) {
                 const details = await actions.order.capture();
                 onSuccess(details);
-                return details;
+                return;
               }
               throw new Error('Failed to capture order');
             } catch (error) {
@@ -63,7 +65,7 @@ const ButtonWrapper: React.FC<PayPalButtonProps> = ({ amount, onSuccess, onError
           }}
           onError={(err) => {
             console.error('PayPal error:', err);
-            onError(err as Error);
+            onError(new Error(err.toString()));
           }}
         />
       )}
@@ -76,7 +78,7 @@ const PayPalButton: React.FC<PayPalButtonProps> = (props) => {
     <div className="paypal-button-container">
       <PayPalScriptProvider
         options={{
-          'client-id': PAYPAL_CLIENT_ID,
+          clientId: PAYPAL_CLIENT_ID,
           currency: 'USD',
           intent: 'capture',
         }}

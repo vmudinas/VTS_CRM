@@ -84,7 +84,7 @@ export const PaymentProvider: React.FC<{ children: ReactNode }> = ({ children })
         paymentType: method,
         amount,
         description: description || `Payment via ${method}`,
-        orderId: orderId || null,
+        orderId: orderId || undefined,
         userId: user?.id,
         userName: user?.name,
         userEmail: user?.email,
