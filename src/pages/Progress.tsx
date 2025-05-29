@@ -171,7 +171,7 @@ const Progress: React.FC = () => {
               </div>
             ) : (
               <div className="text-xl font-medium text-gray-700">
-                Current Player: <span className="font-bold text-blue-600">{currentPlayer}</span>
+                Current Player: <span className={`font-bold ${currentPlayer === 'X' ? 'text-purple-600' : 'text-green-600'}`}>{currentPlayer}</span>
               </div>
             )}
           </div>
@@ -186,7 +186,7 @@ const Progress: React.FC = () => {
                   className="h-20 w-20 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 flex items-center justify-center text-3xl font-bold disabled:cursor-not-allowed"
                   disabled={cell !== null || winner !== null || gameOver}
                 >
-                  <span className={cell === 'X' ? 'text-blue-600' : 'text-red-600'}>
+                  <span className={cell === 'X' ? 'text-purple-600' : 'text-green-600'}>
                     {cell}
                   </span>
                 </button>
