@@ -28,7 +28,7 @@ Full-stack web application featuring:
   11. [License](#license)
 
 ## Overview
-`Folds & Flavors` is a sample online store application. It provides product listings, shopping cart, order management, and messaging endpoints. The application is split into:
+`VTS Capital Management` is a CRM system for property management and IT consultancy services. It provides service listings, client management, order processing, and messaging endpoints. The application is split into:
   - **Frontend**: SPA built with React and Tailwind CSS
   - **Backend API**: ASP.NET Core Web API using EF Core for data access
   - **Database**: SQL Server (Docker)
@@ -37,16 +37,16 @@ Full-stack web application featuring:
 
 This application is a full-stack solution with three main components:
 
-1. **React Frontend**: A single-page application (SPA) built with React and TypeScript that provides the user interface for the store. This is what gets deployed to GitHub Pages.
+1. **React Frontend**: A single-page application (SPA) built with React and TypeScript that provides the user interface for the CRM system. This is what gets deployed to GitHub Pages.
 
 2. **ASP.NET Core API**: A RESTful API that handles business logic, data processing, and database operations. It provides endpoints for:
-   - Product management
-   - Order processing
+   - Service management
+   - Client and project management
    - User authentication
    - File uploads
    - Messages and notifications
 
-3. **SQL Server Database**: Stores all application data including products, orders, users, and system logs.
+3. **SQL Server Database**: Stores all application data including services, clients, projects, users, and system logs.
 
 ### Architecture Overview:
 
