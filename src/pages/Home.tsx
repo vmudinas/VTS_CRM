@@ -92,7 +92,7 @@ export const CategoryTab: React.FC<{
 
 const Home: React.FC<{ addToCart: (item: Product) => void }> = ({ addToCart }) => {
   // State for active category
-  const [activeCategory, setActiveCategory] = useState<'Weapons' | 'Games' | 'All'>('Weapons');
+  const [activeCategory, setActiveCategory] = useState<'Property' | 'IT' | 'All'>('Property');
   
   // State for products
   const [allProducts, setAllProducts] = useState<Product[]>([]);
@@ -131,15 +131,15 @@ const Home: React.FC<{ addToCart: (item: Product) => void }> = ({ addToCart }) =
       {/* Hero Section */}
       <section className="text-center mb-12">
         <h1 className="font-heading text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-          Welcome to <span className="text-primary-600">Folds & Flavors</span>
+          Welcome to <span className="text-primary-600">VTS Capital Management</span>
         </h1>
         <p className="text-gray-600 max-w-2xl mx-auto mb-8 text-lg">
-          Discover our handcrafted origami creations, delicious candies, and tasty snacks.
-          We offer a variety of products to satisfy your cravings and creative needs.
+          Professional property management and IT consultancy services. 
+          We help you maximize your property investments and optimize your technology infrastructure.
         </p>
         <div className="flex justify-center space-x-4">
           <a href="#featured" className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-300">
-            View Products
+            View Services
           </a>
           <a href="#about" className="bg-white border-2 border-primary-600 text-primary-600 hover:bg-primary-50 px-6 py-3 rounded-lg font-medium transition-colors duration-300">
             Learn More
@@ -151,7 +151,7 @@ const Home: React.FC<{ addToCart: (item: Product) => void }> = ({ addToCart }) =
       {loading && (
         <div className="flex flex-col items-center justify-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600 mb-4"></div>
-          <p className="text-gray-600">Loading products...</p>
+          <p className="text-gray-600">Loading services...</p>
         </div>
       )}
       
@@ -169,7 +169,7 @@ const Home: React.FC<{ addToCart: (item: Product) => void }> = ({ addToCart }) =
           <section id="featured" className="mb-16">
             <div className="flex items-center justify-between mb-8">
               <h2 className="font-heading text-2xl md:text-3xl font-bold text-gray-800">
-                Featured Products
+                Featured Services
               </h2>
               <div className="flex space-x-2">
                 <button className="swiper-button-prev-custom bg-white rounded-full p-2 shadow hover:bg-gray-100 transition-colors">
@@ -215,7 +215,7 @@ const Home: React.FC<{ addToCart: (item: Product) => void }> = ({ addToCart }) =
               </Swiper>
             ) : (
               <div className="bg-gray-50 rounded-lg p-8 text-center">
-                <p className="text-gray-600">No featured products available at the moment.</p>
+                <p className="text-gray-600">No featured services available at the moment.</p>
               </div>
             )}
           </section>
@@ -224,20 +224,20 @@ const Home: React.FC<{ addToCart: (item: Product) => void }> = ({ addToCart }) =
           <section className="mb-16">
             <div className="flex items-center justify-between mb-8">
               <h2 className="font-heading text-2xl md:text-3xl font-bold text-gray-800">
-                Our Products
+                Our Services
               </h2>
               <div className="flex space-x-2">
                 <CategoryTab 
-                  category="Weapons" 
-                  label="Weapons" 
-                  active={activeCategory === 'Weapons'} 
-                  onClick={() => setActiveCategory('Weapons')} 
+                  category="Property" 
+                  label="Property Management" 
+                  active={activeCategory === 'Property'} 
+                  onClick={() => setActiveCategory('Property')} 
                 />
                 <CategoryTab 
-                  category="Games" 
-                  label="Games" 
-                  active={activeCategory === 'Games'} 
-                  onClick={() => setActiveCategory('Games')} 
+                  category="IT" 
+                  label="IT Consultancy" 
+                  active={activeCategory === 'IT'} 
+                  onClick={() => setActiveCategory('IT')} 
                 />
                 <CategoryTab 
                   category="All" 
@@ -260,7 +260,7 @@ const Home: React.FC<{ addToCart: (item: Product) => void }> = ({ addToCart }) =
               </div>
             ) : (
               <div className="bg-gray-50 rounded-lg p-8 text-center">
-                <p className="text-gray-600">No products available in this category at the moment.</p>
+                <p className="text-gray-600">No services available in this category at the moment.</p>
                 <p className="text-gray-500 mt-2">Please check back later or try another category.</p>
               </div>
             )}
@@ -273,17 +273,17 @@ const Home: React.FC<{ addToCart: (item: Product) => void }> = ({ addToCart }) =
         <div className="flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 mb-6 md:mb-0 md:pr-8">
             <h2 className="font-heading text-2xl md:text-3xl font-bold text-gray-800 mb-4">
-              Our Story
+              About VTS Capital Management
             </h2>
             <p className="text-gray-700 mb-4">
-              Folds & Flavors began with a passion for the ancient art of origami and delicious treats. 
-              What started as a hobby quickly grew into a mission to share the beauty 
-              of paper folding and tasty snacks with the world.
+              VTS Capital Management began with a vision to provide comprehensive property management 
+              and IT consultancy services. Our expertise spans across real estate investment optimization 
+              and cutting-edge technology solutions for businesses.
             </p>
             <p className="text-gray-700">
-              Each of our origami creations is meticulously designed and folded by hand, 
-              while our candies and snacks are carefully selected for quality and taste.
-              We're committed to providing the best products for our customers.
+              Each client partnership is built on trust, transparency, and results. 
+              We combine deep market knowledge with innovative technology to deliver 
+              exceptional value for property investors and businesses seeking IT excellence.
             </p>
           </div>
           <div className="md:w-1/2 grid grid-cols-2 gap-4">
@@ -293,8 +293,8 @@ const Home: React.FC<{ addToCart: (item: Product) => void }> = ({ addToCart }) =
                   <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
                 </svg>
               </div>
-              <h3 className="font-heading font-semibold text-lg mb-1">Handcrafted</h3>
-              <p className="text-sm text-gray-600">Each origami piece is carefully folded by hand.</p>
+              <h3 className="font-heading font-semibold text-lg mb-1">Professional</h3>
+              <p className="text-sm text-gray-600">Expert property management with proven results.</p>
             </div>
             <div className="bg-white p-4 rounded-lg shadow-md">
               <div className="text-secondary-600 mb-2">
@@ -302,8 +302,8 @@ const Home: React.FC<{ addToCart: (item: Product) => void }> = ({ addToCart }) =
                   <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
                 </svg>
               </div>
-              <h3 className="font-heading font-semibold text-lg mb-1">Community</h3>
-              <p className="text-sm text-gray-600">Join our growing community of enthusiasts.</p>
+              <h3 className="font-heading font-semibold text-lg mb-1">Trusted Partners</h3>
+              <p className="text-sm text-gray-600">Building lasting relationships with our clients.</p>
             </div>
             <div className="bg-white p-4 rounded-lg shadow-md">
               <div className="text-accent-500 mb-2">
@@ -311,8 +311,8 @@ const Home: React.FC<{ addToCart: (item: Product) => void }> = ({ addToCart }) =
                   <path fillRule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z" clipRule="evenodd"></path>
                 </svg>
               </div>
-              <h3 className="font-heading font-semibold text-lg mb-1">Custom Designs</h3>
-              <p className="text-sm text-gray-600">We create custom origami for special occasions.</p>
+              <h3 className="font-heading font-semibold text-lg mb-1">IT Solutions</h3>
+              <p className="text-sm text-gray-600">Custom technology consulting for your business needs.</p>
             </div>
             <div className="bg-white p-4 rounded-lg shadow-md">
               <div className="text-green-600 mb-2">
@@ -321,8 +321,8 @@ const Home: React.FC<{ addToCart: (item: Product) => void }> = ({ addToCart }) =
                   <path fillRule="evenodd" d="M4 13a2 2 0 100 4h12a2 2 0 100-4H4zm11.24 2a.75.75 0 01.75-.75H16a.75.75 0 01.75.75v.01a.75.75 0 01-.75.75h-.01a.75.75 0 01-.75-.75V15zm-2.25-.75a.75.75 0 00-.75.75v.01c0 .414.336.75.75.75H13a.75.75 0 00.75-.75V15a.75.75 0 00-.75-.75h-.01z" clipRule="evenodd"></path>
                 </svg>
               </div>
-              <h3 className="font-heading font-semibold text-lg mb-1">Eco-Friendly</h3>
-              <p className="text-sm text-gray-600">We use sustainable materials for all our products.</p>
+              <h3 className="font-heading font-semibold text-lg mb-1">Sustainable Growth</h3>
+              <p className="text-sm text-gray-600">Long-term strategies for property investment success.</p>
             </div>
           </div>
         </div>
