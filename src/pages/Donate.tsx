@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { usePayment, PaymentMethodType } from '../context/PaymentContext';
 import PaymentService from '../services/payment.service';
 import {
-  ApplePayButton,
   PayPalButton,
   ZelleInstructions,
   CryptoPayment,
@@ -11,7 +10,7 @@ import {
 
 const Donate: React.FC = () => {
   const [amount, setAmount] = useState<number>(5);
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethodType>('standard');
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethodType>('paypal');
   const [donationId] = useState<number>(Math.floor(Math.random() * 1000000)); // Mock donation ID
   const [cryptoAddress] = useState<string>("1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"); // Example Bitcoin address
   
@@ -86,19 +85,7 @@ const Donate: React.FC = () => {
             <label className="block text-gray-700 text-sm font-bold mb-2">
               Select Payment Method
             </label>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <button 
-                type="button"
-                className={`p-4 border rounded-md flex flex-col items-center ${selectedMethod === 'applePay' ? 'bg-blue-100 border-blue-500' : ''}`}
-                onClick={() => handlePaymentMethodChange('applePay')}
-              >
-                <svg className="w-12 h-12 mb-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M6 9C6 11.2091 7.79086 13 10 13H14C16.2091 13 18 11.2091 18 9C18 6.79086 16.2091 5 14 5H10C7.79086 5 6 6.79086 6 9Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M8 13V19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M16 13V19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                Apple Pay
-              </button>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <button 
                 type="button"
                 className={`p-4 border rounded-md flex flex-col items-center ${selectedMethod === 'paypal' ? 'bg-blue-100 border-blue-500' : ''}`}
@@ -148,16 +135,6 @@ const Donate: React.FC = () => {
           
           {/* Payment Method Specific Components */}
           <div className="mb-6">
-            {selectedMethod === 'applePay' && (
-              <div className="my-4">
-                <ApplePayButton 
-                  amount={amount} 
-                  onSuccess={handlePaymentSuccess}
-                  onError={handlePaymentError}
-                />
-              </div>
-            )}
-            
             {selectedMethod === 'paypal' && (
               <div className="my-4">
                 <PayPalButton 

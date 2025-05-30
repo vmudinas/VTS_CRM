@@ -472,27 +472,6 @@ const Cart: React.FC<CartProps> = ({ cartItems, setCartItems }) => {
                     </label>
                   </div>
                   
-                  {/* Apple Pay */}
-                  <div className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer" 
-                       onClick={() => setPaymentMethod('applePay')}>
-                    <input
-                      id="payment-apple-pay"
-                      name="payment-method"
-                      type="radio"
-                      value="applePay"
-                      checked={paymentMethod === 'applePay'}
-                      onChange={() => setPaymentMethod('applePay')}
-                      className="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300"
-                      disabled={status === 'submitting'}
-                    />
-                    <label htmlFor="payment-apple-pay" className="ml-3 block text-sm text-gray-900 flex items-center">
-                      <span className="bg-black text-white p-1 rounded-md mr-2 text-xs flex items-center justify-center">
-                        <span style={{ fontFamily: 'sans-serif', fontWeight: 'bold' }}>Pay</span>
-                      </span>
-                      Apple Pay
-                    </label>
-                  </div>
-                  
                   {/* PayPal */}
                   <div className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer" 
                        onClick={() => setPaymentMethod('paypal')}>
@@ -582,22 +561,6 @@ const Cart: React.FC<CartProps> = ({ cartItems, setCartItems }) => {
               <div className="mt-4 flex justify-center">
                 <PaymentStatusBadge status={status} />
               </div>
-
-              {/* Special Apple Pay Section - Only shown when selected */}
-              {paymentMethod === 'applePay' && (
-                <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-500 mb-3">
-                    After placing your order, you'll be able to complete payment with Apple Pay.
-                  </p>
-                  <div className="flex justify-center">
-                    <img 
-                      src="https://developer.apple.com/design/human-interface-guidelines/foundations/branding/images/apple-pay-mark.png"
-                      alt="Apple Pay" 
-                      className="h-8" 
-                    />
-                  </div>
-                </div>
-              )}
 
               {/* Special PayPal Section - Only shown when selected */}
               {paymentMethod === 'paypal' && (
