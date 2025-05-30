@@ -15,3 +15,23 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Ensure touch targets are at least 44px on mobile for better usability */
+@media (max-width: 768px) {
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Improve mobile menu visibility */
+  .mobile-menu {
+    backdrop-filter: blur(4px);
+  }
+  
+  /* Ensure dropdown menus are full-width on mobile */
+  .dropdown-mobile {
+    left: 0;
+    right: 0;
+    width: 100%;
+  }
+}
