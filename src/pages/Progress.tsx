@@ -162,8 +162,20 @@ const Progress: React.FC = () => {
           {/* Game Status */}
           <div className="text-center mb-6">
             {winner ? (
-              <div className="text-2xl font-bold text-green-600">
-                🎉 Player {winner} Wins! 🎉
+              <div className="text-2xl font-bold text-green-600 flex items-center justify-center space-x-2">
+                <span>🎉 Player</span>
+                <span className={`${winner === 'X' ? 'text-blue-600' : 'text-orange-600'}`}>
+                  {winner === 'X' ? (
+                    <svg className="inline w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M 12 3 L 20 8.5 L 17 18 L 7 18 L 4 8.5 Z" />
+                    </svg>
+                  ) : (
+                    <svg className="inline w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M 12 3 L 19.5 7.5 L 19.5 16.5 L 12 21 L 4.5 16.5 L 4.5 7.5 Z" />
+                    </svg>
+                  )}
+                </span>
+                <span>Wins! 🎉</span>
               </div>
             ) : gameOver ? (
               <div className="text-2xl font-bold text-yellow-600">
@@ -171,14 +183,24 @@ const Progress: React.FC = () => {
               </div>
             ) : (
               <div className="text-xl font-medium text-gray-700">
-                Current Player: <span className={`font-bold ${currentPlayer === 'X' ? 'text-purple-600' : 'text-green-600'}`}>{currentPlayer}</span>
+                Current Player: <span className={`font-bold ${currentPlayer === 'X' ? 'text-blue-600' : 'text-orange-600'}`}>
+                  {currentPlayer === 'X' ? (
+                    <svg className="inline w-6 h-6 ml-2" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M 12 3 L 20 8.5 L 17 18 L 7 18 L 4 8.5 Z" />
+                    </svg>
+                  ) : (
+                    <svg className="inline w-6 h-6 ml-2" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M 12 3 L 19.5 7.5 L 19.5 16.5 L 12 21 L 4.5 16.5 L 4.5 7.5 Z" />
+                    </svg>
+                  )}
+                </span>
               </div>
             )}
           </div>
 
           {/* Game Board */}
           <div className="max-w-sm mx-auto mb-6">
-            <div className="grid grid-cols-3 gap-2 p-4 bg-gray-100 rounded-lg">
+            <div className="grid grid-cols-3 gap-2 p-4 bg-slate-100 rounded-lg">
               {board.map((cell, index) => (
                 <button
                   key={index}
@@ -186,9 +208,17 @@ const Progress: React.FC = () => {
                   className="h-20 w-20 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 flex items-center justify-center text-3xl font-bold disabled:cursor-not-allowed"
                   disabled={cell !== null || winner !== null || gameOver}
                 >
-                  <span className={cell === 'X' ? 'text-purple-600' : 'text-green-600'}>
-                    {cell}
-                  </span>
+                  <div className={`flex items-center justify-center ${cell === 'X' ? 'text-blue-600' : 'text-orange-600'}`}>
+                    {cell === 'X' ? (
+                      <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M 12 3 L 20 8.5 L 17 18 L 7 18 L 4 8.5 Z" />
+                      </svg>
+                    ) : cell === 'O' ? (
+                      <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M 12 3 L 19.5 7.5 L 19.5 16.5 L 12 21 L 4.5 16.5 L 4.5 7.5 Z" />
+                      </svg>
+                    ) : null}
+                  </div>
                 </button>
               ))}
             </div>
@@ -198,7 +228,7 @@ const Progress: React.FC = () => {
           <div className="text-center">
             <button
               onClick={resetGame}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-300"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-300"
             >
               New Game
             </button>
