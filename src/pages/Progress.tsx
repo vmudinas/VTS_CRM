@@ -167,11 +167,11 @@ const Progress: React.FC = () => {
                 <span className={`${winner === 'X' ? 'text-blue-600' : 'text-orange-600'}`}>
                   {winner === 'X' ? (
                     <svg className="inline w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2L22 20H2L12 2z" />
+                      <path d="M 12 3 L 20 8.5 L 17 18 L 7 18 L 4 8.5 Z" />
                     </svg>
                   ) : (
                     <svg className="inline w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                      <rect x="4" y="4" width="16" height="16" />
+                      <path d="M 12 3 L 19.5 7.5 L 19.5 16.5 L 12 21 L 4.5 16.5 L 4.5 7.5 Z" />
                     </svg>
                   )}
                 </span>
@@ -186,11 +186,11 @@ const Progress: React.FC = () => {
                 Current Player: <span className={`font-bold ${currentPlayer === 'X' ? 'text-blue-600' : 'text-orange-600'}`}>
                   {currentPlayer === 'X' ? (
                     <svg className="inline w-6 h-6 ml-2" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2L22 20H2L12 2z" />
+                      <path d="M 12 3 L 20 8.5 L 17 18 L 7 18 L 4 8.5 Z" />
                     </svg>
                   ) : (
                     <svg className="inline w-6 h-6 ml-2" fill="currentColor" viewBox="0 0 24 24">
-                      <rect x="4" y="4" width="16" height="16" />
+                      <path d="M 12 3 L 19.5 7.5 L 19.5 16.5 L 12 21 L 4.5 16.5 L 4.5 7.5 Z" />
                     </svg>
                   )}
                 </span>
@@ -211,11 +211,11 @@ const Progress: React.FC = () => {
                   <div className={`flex items-center justify-center ${cell === 'X' ? 'text-blue-600' : 'text-orange-600'}`}>
                     {cell === 'X' ? (
                       <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2L22 20H2L12 2z" />
+                        <path d="M 12 3 L 20 8.5 L 17 18 L 7 18 L 4 8.5 Z" />
                       </svg>
                     ) : cell === 'O' ? (
                       <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                        <rect x="4" y="4" width="16" height="16" />
+                        <path d="M 12 3 L 19.5 7.5 L 19.5 16.5 L 12 21 L 4.5 16.5 L 4.5 7.5 Z" />
                       </svg>
                     ) : null}
                   </div>
